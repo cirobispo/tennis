@@ -12,8 +12,8 @@ func NewGameAction(sm ScoreManager) GameAction {
 	return GameAction{sm: sm}
 }
 
-func (ga *GameAction) ExecuteAction(point GamePointing, turnIndex int) {
-	if point.UpdateScore() {
-		ga.sm.UpdateScore(turnIndex)
+func (ga *GameAction) ExecuteAction(point GamePointing, turn TurnPosition) {
+	if point.UpdateScore() == GPUYes {
+		ga.sm.UpdateScore(turn)
 	}
 }

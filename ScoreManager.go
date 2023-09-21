@@ -9,14 +9,14 @@ type maxPoints struct {
 	maxValue     int
 	hasToConfirm bool
 
-	updateScore func(maxValue, AB int, valueA, valueB *int)
+	updateScore func(maxValue int, AB TurnPosition, valueA, valueB *int)
 }
 
-func newMaxPoints(max int, confirm bool, updateScore func(maxValue, AB int, valueA, valueB *int)) maxPoints {
+func newMaxPoints(max int, confirm bool, updateScore func(maxValue int, AB TurnPosition, valueA, valueB *int)) maxPoints {
 	return maxPoints{maxValue: max, hasToConfirm: confirm, updateScore: updateScore}
 }
 
-func (p maxPoints) UpdateScore(AB int, valueA, valueB *int) {
+func (p maxPoints) UpdateScore(AB TurnPosition, valueA, valueB *int) {
 	if p.updateScore != nil {
 		p.updateScore(p.maxValue, AB, valueA, valueB)
 	}
@@ -48,21 +48,21 @@ const (
 
 type ScoreManager interface {
 	ResetScore()
-	UpdateScore(AB int)
+	UpdateScore(AB TurnPosition)
 	AddChangedScoreEvent(changedScoreEvent OnChangedScore)
 	AddReachedScoreEvent(scoreGameEvent OnScoreGame)
 }
 
 type ScoreData interface {
 	ScoreType() ScoreType
-	GetScoreValues(AB int) (int, int)
+	GetScoreValues(AB TurnPosition) (int, int)
 }
 
 type ScoreDataWrapper struct {
 	valueA, valueB string
 }
 
-func NewScoreDataWrapper(AB int, scoreData ScoreData) ScoreDataWrapper {
+func NewScoreDataWrapper(AB TurnPosition, scoreData ScoreData) ScoreDataWrapper {
 	vA, vB := scoreData.GetScoreValues(AB)
 
 	scoreToText := func(value int) string {
@@ -110,23 +110,23 @@ type GameScore struct {
 	changedScoreEvent []OnChangedScore
 }
 
-func updateGameScore(maxValue, AB int, valueA, valueB *int) {
-	if AB == 0 && *valueB == maxValue {
+func updateGameScore(maxValue int, AB TurnPosition, valueA, valueB *int) {
+	if AB == TPEven && *valueB == maxValue {
 		*valueB -= 1
-	} else if AB == 1 && *valueA == maxValue {
+	} else if AB == TPOdd && *valueA == maxValue {
 		*valueA -= 1
 	} else {
 		value := valueA
-		if AB == 1 {
+		if AB == TPOdd {
 			value = valueB
 		}
 		*value++
 	}
 }
 
-func updateSetScore(maxValue, AB int, valueA, valueB *int) {
+func updateSetScore(maxValue int, AB TurnPosition, valueA, valueB *int) {
 	value := valueA
-	if AB == 1 {
+	if AB == TPOdd {
 		value = valueB
 	}
 	*value++
@@ -191,7 +191,7 @@ func (s *GameScore) ResetScore() {
 	s.executeChangedScoreEvent()
 }
 
-func (s *GameScore) UpdateScore(AB int) {
+func (s *GameScore) UpdateScore(AB TurnPosition) {
 	s.maxPoints.UpdateScore(AB, &s.valueA, &s.valueB)
 	s.executeChangedScoreEvent()
 
@@ -200,8 +200,8 @@ func (s *GameScore) UpdateScore(AB int) {
 	}
 }
 
-func (s GameScore) GetScoreValues(AB int) (int, int) {
-	if AB == 1 {
+func (s GameScore) GetScoreValues(AB TurnPosition) (int, int) {
+	if AB == TPOdd {
 		return s.valueB, s.valueA
 	}
 

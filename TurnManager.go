@@ -1,62 +1,84 @@
 package tennisstatus
 
-type TurnInfo interface {
-	TurnDescription() string
-}
+type TurnPosition int
 
-type OnTurnStart func()
-type OnTurnChange func(turnIndex int)
+const (
+	TPEven TurnPosition = 0
+	TPOdd  TurnPosition = 1
+)
+
+type OnTurnChange func(turn TurnPosition)
+type OnTurnReset func()
 
 type TurnManager struct {
-	turnIndex int
+	turnIndex         TurnPosition
+	turnStartPosition TurnPosition
 
-	turnStartEvent  []OnTurnStart
-	turnChangeEvent []OnTurnChange
+	resetTurnEvent  []OnTurnReset
+	changeTurnEvent []OnTurnChange
 }
 
-func NewTurnManager() TurnManager {
+func NewTurnManager(turnStartPosition TurnPosition) TurnManager {
 	return TurnManager{
-		turnIndex:       -1,
-		turnStartEvent:  make([]OnTurnStart, 0),
-		turnChangeEvent: make([]OnTurnChange, 0),
+		turnIndex:         turnStartPosition,
+		turnStartPosition: turnStartPosition,
+		resetTurnEvent:    make([]OnTurnReset, 0),
+		changeTurnEvent:   make([]OnTurnChange, 0),
 	}
 }
 
-func (t *TurnManager) StartTurn() {
-	if t.turnIndex == -1 {
-		t.turnIndex = 0
-	}
-
-	if t.turnStartEvent != nil {
-		t.executeOnTurnStart()
-	}
+type TurnDescriber interface {
+	EvenDesc() string
+	OddDesc() string
 }
 
-func (t TurnManager) executeOnTurnChange(turnIndex int) {
-	for i := 0; i < len(t.turnChangeEvent); i++ {
-		evt := t.turnChangeEvent[i]
-		evt(turnIndex)
-	}
+type TurnSideDescribe struct {
+	even, odd string
 }
 
-func (t TurnManager) executeOnTurnStart() {
-	for i := 0; i < len(t.turnStartEvent); i++ {
-		evt := t.turnStartEvent[i]
-		evt()
+func NewTurnDescribe(t TurnManager, Even, Odd string) TurnDescriber {
+	even := Even
+	odd := Odd
+	if t.BeginningTurn() != TPEven {
+		even = Odd
+		odd = Even
 	}
+
+	return TurnSideDescribe{even: even, odd: odd}
 }
 
-func (t *TurnManager) AddTurnStartEvent(turnStartEvent OnTurnStart) {
-	t.turnStartEvent = append(t.turnStartEvent, turnStartEvent)
+func (d TurnSideDescribe) EvenDesc() string {
+	return d.even
+}
+
+func (d TurnSideDescribe) OddDesc() string {
+	return d.odd
+}
+
+func (t *TurnManager) ResetTurn() {
+	t.turnIndex = t.turnStartPosition
+	t.executeOnTurnReset()
+}
+
+func (t TurnManager) CurrentTurn() TurnPosition {
+	return t.turnIndex
+}
+
+func (t TurnManager) BeginningTurn() TurnPosition {
+	return t.turnStartPosition
+}
+
+func (t *TurnManager) AddResetTurnEvent(resetTurnEvent OnTurnReset) {
+	t.resetTurnEvent = append(t.resetTurnEvent, resetTurnEvent)
 }
 
 func (t *TurnManager) AddTurnChangeEvent(turnChangeEvent OnTurnChange) {
-	t.turnChangeEvent = append(t.turnChangeEvent, turnChangeEvent)
+	t.changeTurnEvent = append(t.changeTurnEvent, turnChangeEvent)
 }
 
-func (t *TurnManager) Do() {
+func (t *TurnManager) Turn() {
 	if t.turnIndex != -1 {
-		if t.turnChangeEvent != nil {
+		if t.changeTurnEvent != nil {
 			t.executeOnTurnChange(t.turnIndex)
 		}
 
@@ -68,17 +90,16 @@ func (t *TurnManager) Do() {
 	}
 }
 
-func (t *TurnManager) Undo() {
-	if t.turnIndex != -1 {
-		if t.turnIndex > 0 {
-			t.turnIndex--
-		} else {
-			t.turnIndex = 1
-		}
+func (t TurnManager) executeOnTurnChange(turn TurnPosition) {
+	for i := 0; i < len(t.changeTurnEvent); i++ {
+		evt := t.changeTurnEvent[i]
+		evt(turn)
 	}
 }
 
-func (t TurnManager) Current() int {
-	result := t.turnIndex
-	return result
+func (t TurnManager) executeOnTurnReset() {
+	for i := 0; i < len(t.resetTurnEvent); i++ {
+		evt := t.resetTurnEvent[i]
+		evt()
+	}
 }

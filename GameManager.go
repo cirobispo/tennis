@@ -1,38 +1,39 @@
 package tennisstatus
 
-import (
-	"fmt"
-)
-
 type OnGameStart func()
 type OnUpdatePoint func(increasedPoint bool)
 type OnGameFinish func()
 
 type GameManager interface {
-	StartGame()
+	GetScore() ScoreManager
+	GetScoreData() ScoreData
 	AddPointing(point GamePointing)
 	AddGameStartEvent(gameStartEvent OnGameStart)
 	AddUpdatePointEvent(updatePointEvent OnUpdatePoint)
 	AddGameFinishEvent(gameFinishEvent OnGameFinish)
+	AddBallTurnChangeEvent(turnChangeEvent OnTurnChange)
 }
 
 type StandardGame struct {
-	side   TurnManager
-	match  *MatchManager
-	score  ScoreManager
-	points []GamePointing
+	ballSide  TurnManager
+	serveSide TurnManager
+	match     *TennisMatch
+	score     ScoreManager
+	points    []GamePointing
 
 	gameStartEvent   []OnGameStart
 	updatePointEvent []OnUpdatePoint
 	gameFinishEvent  []OnGameFinish
 }
 
-func NewStandardGame(match *MatchManager) StandardGame {
-	turn := NewTurnManager()
+func NewSingleStandardGame(match *TennisMatch) StandardGame {
 	score := NewGameScore()
+	ballSide := NewTurnManager(TPEven)
+	serveSide := NewTurnManager(TPEven)
 
-	return StandardGame{
-		side:             turn,
+	game := StandardGame{
+		ballSide:         ballSide,
+		serveSide:        serveSide,
 		match:            match,
 		score:            &score,
 		points:           make([]GamePointing, 0),
@@ -40,51 +41,61 @@ func NewStandardGame(match *MatchManager) StandardGame {
 		updatePointEvent: make([]OnUpdatePoint, 0),
 		gameFinishEvent:  make([]OnGameFinish, 0),
 	}
+
+	score.AddReachedScoreEvent(func(valueA, valueB int) {
+		game.executeGameFinishEvent()
+	})
+
+	return game
 }
 
-func NewStandardGameInSet(set *StandardSet) StandardGame {
-	return NewStandardGame(set.match)
+func NewGroupedStandardGame(set *StandardSet) StandardGame {
+	return NewSingleStandardGame(set.match)
 }
 
-func (g *StandardGame) StartGame() {
-	onTurnStart := func() {
-		fmt.Printf("turno iniciado\n")
-	}
+func (g StandardGame) GetScore() ScoreManager {
+	return g.score
+}
 
-	onTurnChange := func(turnIndex int) {
-		turnName := "Ad in"
-		if turnIndex == 1 {
-			turnName = "Ad out"
+func (g StandardGame) GetScoreData() ScoreData {
+	return g.match.score
+}
+
+func (g *StandardGame) UpdateBallAndServeTurn(AB TurnPosition, pointAdded bool) {
+	if pointAdded {
+		g.ballSide.ResetTurn()
+		g.serveSide.ResetTurn()
+	} else {
+		if lastPoint := g.points[len(g.points)-1]; lastPoint.GetType() != GPTServeLet {
+			g.ballSide.Turn()
 		}
-		fmt.Printf("Serve: %s\t", turnName)
-	}
-	g.side.AddTurnChangeEvent(onTurnChange)
-	g.side.AddTurnStartEvent(onTurnStart)
-
-	scoreGameEvent := func(v1, v2 int) {
-		g.executeGameFinishEvent()
-	}
-
-	g.score.AddReachedScoreEvent(scoreGameEvent)
-
-	g.side.StartTurn()
-
-	if g.gameStartEvent != nil {
-		g.executeGameStartEvent()
 	}
 }
 
 func (g *StandardGame) AddPointing(point GamePointing) {
-	g.points = append(g.points, point)
-
-	ga := NewGameAction(g.score)
-	ga.ExecuteAction(point, g.side.turnIndex)
-
-	if g.updatePointEvent != nil {
-		g.executeUpdatePointEvent(point.UpdateScore())
+	if len(g.points) == 0 {
+		g.executeGameStartEvent()
 	}
 
-	g.side.Do()
+	g.points = append(g.points, point)
+
+	pointAdded := (point.UpdateScore() == GPUYes)
+	if point.UpdateScore() == GPUYes {
+		g.score.UpdateScore(g.ballSide.turnIndex)
+	} else if point.UpdateScore() == GPUCondicional {
+		if len(g.points) > 1 {
+			if lastPoint := g.points[len(g.points)-2]; lastPoint.UpdateScore() == GPUCondicional {
+				g.score.UpdateScore(g.ballSide.turnIndex)
+				pointAdded = true
+			}
+		}
+	}
+
+	if g.updatePointEvent != nil {
+		g.executeUpdatePointEvent(pointAdded)
+	}
+
+	g.UpdateBallAndServeTurn(g.ballSide.CurrentTurn(), pointAdded)
 }
 
 func (g *StandardGame) AddGameStartEvent(gameStartEvent OnGameStart) {
@@ -97,6 +108,10 @@ func (g *StandardGame) AddUpdatePointEvent(updatePointEvent OnUpdatePoint) {
 
 func (g *StandardGame) AddGameFinishEvent(gameFinishEvent OnGameFinish) {
 	g.gameFinishEvent = append(g.gameFinishEvent, gameFinishEvent)
+}
+
+func (g *StandardGame) AddBallTurnChangeEvent(turnChangeEvent OnTurnChange) {
+	g.ballSide.AddTurnChangeEvent(turnChangeEvent)
 }
 
 func (g StandardGame) executeGameStartEvent() {

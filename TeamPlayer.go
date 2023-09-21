@@ -25,7 +25,7 @@ func NewTeam(playersName []string) *Team {
 		players = append(players, &player)
 	}
 
-	turnM := NewTurnManager()
+	turnM := NewTurnManager(TPEven)
 
 	t := &Team{
 		players: players,

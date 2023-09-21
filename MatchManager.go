@@ -5,38 +5,34 @@ type MatchManager struct {
 	turn  *TurnManager
 	score *GameScore
 
-	sets       []*StandardSet
-	currentSet *StandardSet
+	sets       []SetManager
+	currentSet SetManager
 }
 
 func NewMatchManager(match *TennisMatch) MatchManager {
 	score := NewGameScore()
-	turn := NewTurnManager()
+	turn := NewTurnManager(TPEven)
 
 	return MatchManager{
 		match: match,
 		score: &score,
 		turn:  &turn,
-		sets:  make([]*StandardSet, 0),
+		sets:  make([]SetManager, 0),
 	}
 }
 
-func (m *MatchManager) StartMatch() {
-	m.turn.StartTurn()
-	m.startNewSet()
-}
-
-func (m *MatchManager) startNewSet() {
+func (m *MatchManager) NewSet() SetManager {
 	if m.currentSet != nil {
 		m.sets = append(m.sets, m.currentSet)
 	}
 
-	new_set := NewStandardSet(m)
+	new_set := NewCustomSet(m.match, m.match.gamesToWin, m.match.confirmSet, m.match.confirmGame)
 	m.currentSet = &new_set
-	m.currentSet.StartSet()
+
+	return m.currentSet
 }
 
-func (m *MatchManager) GetCurrentSet() *StandardSet {
+func (m *MatchManager) GetCurrentSet() SetManager {
 	return m.currentSet
 }
 

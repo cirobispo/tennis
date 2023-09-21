@@ -12,7 +12,7 @@ type TennisMatch struct {
 
 func NewTennisMatch(teamA, teamB *Team, setsToVictory, gamesToWin int, confirmGame, confirmSet bool) TennisMatch {
 	score := NewGameScore()
-	turn := NewTurnManager()
+	turn := NewTurnManager(TPEven)
 
 	return TennisMatch{
 		teamA:         teamA,
