@@ -38,7 +38,7 @@ func (s *StandardSet) startNewGame() GameManager {
 	}
 
 	new_game := NewSingleStandardGame(s.match)
-	new_game.AddGameFinishEvent(func() {
+	new_game.AddFinishedGameEvent(func() {
 		s.startNewGame()
 	})
 	s.currentGame = &new_game

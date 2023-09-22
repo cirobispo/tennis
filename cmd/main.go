@@ -54,27 +54,31 @@ func gameSimulation(game tennisstatus.GameManager) {
 	eRally := func() tennisstatus.GamePointing {
 		switch rand.Intn(3) {
 		case 2:
-			return tennisstatus.NewGamePointReturnIn()
+			return tennisstatus.NewGamePointIn()
 		case 1:
-			return tennisstatus.NewGamePointReturnNet()
+			return tennisstatus.NewGamePointNet()
 		default:
-			return tennisstatus.NewGamePointReturnOut()
+			return tennisstatus.NewGamePointOut()
 		}
 	}
 
-	game.AddGameStartEvent(func() {
+	game.AddGameStartingEvent(func() {
 		fmt.Println("iniciei o jogo")
 	})
 
 	sair := false
-	game.AddGameFinishEvent(func() {
+	game.AddFinishedGameEvent(func() {
 		fmt.Println("terminei o jogo")
 		sair = true
 	})
 
-	game.AddUpdatePointEvent(func(increasedPoint bool) {
-		data := tennisstatus.NewScoreDataWrapper(tennisstatus.TPEven, game.GetScoreData())
-		fmt.Printf("%s x %s\n", data.GetValueA(), data.GetValueB())
+	game.AddUpdatePointEvent(func(increasedPoint bool, increasedBy tennisstatus.TurnPosition) {
+		if increasedPoint {
+			g := game.(*tennisstatus.StandardGame)
+			v1, v2 := g.GetScoreData().GetScoreValues(increasedBy)
+			data := tennisstatus.NewScoreDataWrapper(tennisstatus.TPEven, g.GetScoreData().ScoreType(), v1, v2)
+			fmt.Printf("%s x %s\n", data.GetValueA(), data.GetValueB())
+		}
 	})
 
 	for {
@@ -115,7 +119,7 @@ func rallySimulation(match tennisstatus.MatchManager) {
 	currentSet := match.NewSet()
 
 	game := currentSet.NewGame()
-	game.AddGameFinishEvent(func() {
+	game.AddFinishedGameEvent(func() {
 		game = currentSet.NewGame()
 	})
 
@@ -224,7 +228,8 @@ func gameScore() {
 	})
 
 	score.AddChangedScoreEvent(func() {
-		wrapper := tennisstatus.NewScoreDataWrapper(0, score)
+		v1, v2 := score.GetScoreValues(tennisstatus.TPEven)
+		wrapper := tennisstatus.NewScoreDataWrapper(tennisstatus.TPEven, score.ScoreType(), v1, v2)
 
 		fmt.Printf("\t%s x %s\n", wrapper.GetValueA(), wrapper.GetValueB())
 

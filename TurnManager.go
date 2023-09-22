@@ -11,7 +11,7 @@ type OnTurnChange func(turn TurnPosition)
 type OnTurnReset func()
 
 type TurnManager struct {
-	turnIndex         TurnPosition
+	turnReference     TurnPosition
 	turnStartPosition TurnPosition
 
 	resetTurnEvent  []OnTurnReset
@@ -20,7 +20,7 @@ type TurnManager struct {
 
 func NewTurnManager(turnStartPosition TurnPosition) TurnManager {
 	return TurnManager{
-		turnIndex:         turnStartPosition,
+		turnReference:     turnStartPosition,
 		turnStartPosition: turnStartPosition,
 		resetTurnEvent:    make([]OnTurnReset, 0),
 		changeTurnEvent:   make([]OnTurnChange, 0),
@@ -56,12 +56,12 @@ func (d TurnSideDescribe) OddDesc() string {
 }
 
 func (t *TurnManager) ResetTurn() {
-	t.turnIndex = t.turnStartPosition
+	t.turnReference = t.turnStartPosition
 	t.executeOnTurnReset()
 }
 
 func (t TurnManager) CurrentTurn() TurnPosition {
-	return t.turnIndex
+	return t.turnReference
 }
 
 func (t TurnManager) BeginningTurn() TurnPosition {
@@ -77,15 +77,15 @@ func (t *TurnManager) AddTurnChangeEvent(turnChangeEvent OnTurnChange) {
 }
 
 func (t *TurnManager) Turn() {
-	if t.turnIndex != -1 {
+	if t.turnReference != -1 {
 		if t.changeTurnEvent != nil {
-			t.executeOnTurnChange(t.turnIndex)
+			t.executeOnTurnChange(t.turnReference)
 		}
 
-		if t.turnIndex < 1 {
-			t.turnIndex++
+		if t.turnReference < 1 {
+			t.turnReference++
 		} else {
-			t.turnIndex = 0
+			t.turnReference = 0
 		}
 	}
 }

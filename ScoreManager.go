@@ -62,11 +62,9 @@ type ScoreDataWrapper struct {
 	valueA, valueB string
 }
 
-func NewScoreDataWrapper(AB TurnPosition, scoreData ScoreData) ScoreDataWrapper {
-	vA, vB := scoreData.GetScoreValues(AB)
-
+func NewScoreDataWrapper(AB TurnPosition, scoreType ScoreType, vA, vB int) ScoreDataWrapper {
 	scoreToText := func(value int) string {
-		if scoreData.ScoreType() == STGame {
+		if scoreType == STGame {
 			if value == 0 {
 				return "Love"
 			} else if value >= 1 && value <= 2 {

@@ -1,16 +1,16 @@
 package tennisstatus
 
-type OnGameStart func()
-type OnUpdatePoint func(increasedPoint bool)
-type OnGameFinish func()
+type OnGameStarting func()
+type OnUpdatePoint func(increasedPoint bool, increasedBy TurnPosition)
+type OnFinishedGame func()
 
 type GameManager interface {
 	GetScore() ScoreManager
 	GetScoreData() ScoreData
 	AddPointing(point GamePointing)
-	AddGameStartEvent(gameStartEvent OnGameStart)
+	AddGameStartingEvent(gameStartEvent OnGameStarting)
 	AddUpdatePointEvent(updatePointEvent OnUpdatePoint)
-	AddGameFinishEvent(gameFinishEvent OnGameFinish)
+	AddFinishedGameEvent(gameFinishEvent OnFinishedGame)
 	AddBallTurnChangeEvent(turnChangeEvent OnTurnChange)
 }
 
@@ -21,9 +21,9 @@ type StandardGame struct {
 	score     ScoreManager
 	points    []GamePointing
 
-	gameStartEvent   []OnGameStart
+	gameStartEvent   []OnGameStarting
 	updatePointEvent []OnUpdatePoint
-	gameFinishEvent  []OnGameFinish
+	gameFinishEvent  []OnFinishedGame
 }
 
 func NewSingleStandardGame(match *TennisMatch) StandardGame {
@@ -37,9 +37,9 @@ func NewSingleStandardGame(match *TennisMatch) StandardGame {
 		match:            match,
 		score:            &score,
 		points:           make([]GamePointing, 0),
-		gameStartEvent:   make([]OnGameStart, 0),
+		gameStartEvent:   make([]OnGameStarting, 0),
 		updatePointEvent: make([]OnUpdatePoint, 0),
-		gameFinishEvent:  make([]OnGameFinish, 0),
+		gameFinishEvent:  make([]OnFinishedGame, 0),
 	}
 
 	score.AddReachedScoreEvent(func(valueA, valueB int) {
@@ -58,17 +58,36 @@ func (g StandardGame) GetScore() ScoreManager {
 }
 
 func (g StandardGame) GetScoreData() ScoreData {
-	return g.match.score
+	s := g.score.(*GameScore)
+	return s
 }
 
-func (g *StandardGame) UpdateBallAndServeTurn(AB TurnPosition, pointAdded bool) {
+func (g *StandardGame) isThereDoubleFault() bool {
+	result := false
+	if size := len(g.points); size > 1 {
+		lastFault := g.points[size-1]
+		var priorFault GamePointing
+		index := size - 2
+		for {
+			if lastPoint := g.points[index]; lastPoint.GetType() != GPTServeLet {
+				priorFault = lastPoint
+				break
+			}
+			index--
+			if index < 0 {
+				break
+			}
+		}
+		result = lastFault.UpdateScore() == GPUCondicional && (priorFault != nil && priorFault.UpdateScore() == GPUCondicional)
+	}
+	return result
+}
+
+func (g *StandardGame) UpdateBallAndServeTurn(AB TurnPosition, point GamePointing, pointAdded bool) {
 	if pointAdded {
 		g.ballSide.ResetTurn()
-		g.serveSide.ResetTurn()
 	} else {
-		if lastPoint := g.points[len(g.points)-1]; lastPoint.GetType() != GPTServeLet {
-			g.ballSide.Turn()
-		}
+		g.ballSide.Turn()
 	}
 }
 
@@ -79,26 +98,27 @@ func (g *StandardGame) AddPointing(point GamePointing) {
 
 	g.points = append(g.points, point)
 
-	pointAdded := (point.UpdateScore() == GPUYes)
-	if point.UpdateScore() == GPUYes {
-		g.score.UpdateScore(g.ballSide.turnIndex)
-	} else if point.UpdateScore() == GPUCondicional {
-		if len(g.points) > 1 {
-			if lastPoint := g.points[len(g.points)-2]; lastPoint.UpdateScore() == GPUCondicional {
-				g.score.UpdateScore(g.ballSide.turnIndex)
-				pointAdded = true
-			}
+	pointAdded := point.UpdateScore() == GPUYes
+	isDoubleFault := g.isThereDoubleFault()
+	if pointAdded || isDoubleFault {
+		if isDoubleFault {
+			pointAdded = true
+			g.ballSide.Turn()
 		}
+		g.score.UpdateScore(g.ballSide.turnReference)
+		g.ballSide.ResetTurn()
 	}
 
 	if g.updatePointEvent != nil {
-		g.executeUpdatePointEvent(pointAdded)
+		g.executeUpdatePointEvent(pointAdded, g.ballSide.turnReference)
 	}
 
-	g.UpdateBallAndServeTurn(g.ballSide.CurrentTurn(), pointAdded)
+	if point.GetType() != GPTServeLet && point.UpdateScore() != GPUCondicional {
+		g.ballSide.Turn()
+	}
 }
 
-func (g *StandardGame) AddGameStartEvent(gameStartEvent OnGameStart) {
+func (g *StandardGame) AddGameStartingEvent(gameStartEvent OnGameStarting) {
 	g.gameStartEvent = append(g.gameStartEvent, gameStartEvent)
 }
 
@@ -106,7 +126,7 @@ func (g *StandardGame) AddUpdatePointEvent(updatePointEvent OnUpdatePoint) {
 	g.updatePointEvent = append(g.updatePointEvent, updatePointEvent)
 }
 
-func (g *StandardGame) AddGameFinishEvent(gameFinishEvent OnGameFinish) {
+func (g *StandardGame) AddFinishedGameEvent(gameFinishEvent OnFinishedGame) {
 	g.gameFinishEvent = append(g.gameFinishEvent, gameFinishEvent)
 }
 
@@ -128,9 +148,9 @@ func (g StandardGame) executeGameFinishEvent() {
 	}
 }
 
-func (g StandardGame) executeUpdatePointEvent(increasedPoint bool) {
+func (g StandardGame) executeUpdatePointEvent(increasedPoint bool, increasedBy TurnPosition) {
 	for i := 0; i < len(g.updatePointEvent); i++ {
 		evt := g.updatePointEvent[i]
-		evt(increasedPoint)
+		evt(increasedPoint, increasedBy)
 	}
 }
