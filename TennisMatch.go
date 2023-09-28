@@ -1,4 +1,4 @@
-package tennisstatus
+package cbtennis
 
 type TennisMatch struct {
 	setsToVictory int

@@ -1,4 +1,4 @@
-package tennisstatus
+package cbtennis
 
 type Player struct {
 	name string

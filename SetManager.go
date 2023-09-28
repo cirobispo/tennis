@@ -1,4 +1,4 @@
-package tennisstatus
+package cbtennis
 
 type SetManager interface {
 	NewGame() GameManager

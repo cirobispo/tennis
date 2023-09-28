@@ -1,4 +1,4 @@
-package tennisstatus
+package cbtennis
 
 type TurnPosition int
 

@@ -1,11 +1,13 @@
-package tennisstatus
+package cbtennis
 
 type GamePointType int
 type GamePointUpdate int
+type GamePointDestination int
 
 type GamePointing interface {
 	GetType() GamePointType
 	UpdateScore() GamePointUpdate
+	PointDestination() GamePointDestination
 }
 
 const (
@@ -31,53 +33,60 @@ const (
 	GPUCondicional GamePointUpdate = 2
 )
 
+const (
+	GPDSameSide    GamePointDestination = 0
+	GPDOpositeSide GamePointDestination = 1
+	GPDNone        GamePointDestination = 2
+)
+
 type GamePoint struct {
-	pointType   GamePointType
-	updateScore GamePointUpdate
+	pointType        GamePointType
+	updateScore      GamePointUpdate
+	pointDestination GamePointDestination
 }
 
 func NewGamePointAce() GamePoint {
-	return GamePoint{pointType: GPTAce, updateScore: GPUYes}
+	return GamePoint{pointType: GPTAce, updateScore: GPUYes, pointDestination: GPDSameSide}
 }
 
 func NewGamePointServeLet() GamePoint {
-	return GamePoint{pointType: GPTServeLet, updateScore: GPUNo}
+	return GamePoint{pointType: GPTServeLet, updateScore: GPUNo, pointDestination: GPDNone}
 }
 
 func NewGamePointServeIn() GamePoint {
-	return GamePoint{pointType: GPTServeIn, updateScore: GPUNo}
+	return GamePoint{pointType: GPTServeIn, updateScore: GPUNo, pointDestination: GPDNone}
 }
 
 func NewGamePointServeOut() GamePoint {
-	return GamePoint{pointType: GPTServeOut, updateScore: GPUCondicional}
+	return GamePoint{pointType: GPTServeOut, updateScore: GPUCondicional, pointDestination: GPDOpositeSide}
 }
 
 func NewGamePointServeNet() GamePoint {
-	return GamePoint{pointType: GPTServeNet, updateScore: GPUCondicional}
+	return GamePoint{pointType: GPTServeNet, updateScore: GPUCondicional, pointDestination: GPDOpositeSide}
 }
 
 func NewGamePointReturnOut() GamePoint {
-	return GamePoint{pointType: GPTReturnOut, updateScore: GPUYes}
+	return GamePoint{pointType: GPTReturnOut, updateScore: GPUYes, pointDestination: GPDOpositeSide}
 }
 
 func NewGamePointReturnNet() GamePoint {
-	return GamePoint{pointType: GPTReturnNet, updateScore: GPUYes}
+	return GamePoint{pointType: GPTReturnNet, updateScore: GPUYes, pointDestination: GPDOpositeSide}
 }
 
 func NewGamePointReturnIn() GamePoint {
-	return GamePoint{pointType: GPTReturnIn, updateScore: GPUNo}
+	return GamePoint{pointType: GPTReturnIn, updateScore: GPUNo, pointDestination: GPDNone}
 }
 
 func NewGamePointIn() GamePoint {
-	return GamePoint{pointType: GPTIn, updateScore: GPUNo}
+	return GamePoint{pointType: GPTIn, updateScore: GPUNo, pointDestination: GPDNone}
 }
 
 func NewGamePointOut() GamePoint {
-	return GamePoint{pointType: GPTOut, updateScore: GPUYes}
+	return GamePoint{pointType: GPTOut, updateScore: GPUYes, pointDestination: GPDNone}
 }
 
 func NewGamePointNet() GamePoint {
-	return GamePoint{pointType: GPTNet, updateScore: GPUYes}
+	return GamePoint{pointType: GPTNet, updateScore: GPUYes, pointDestination: GPDOpositeSide}
 }
 
 func (g GamePoint) GetType() GamePointType {
@@ -86,4 +95,8 @@ func (g GamePoint) GetType() GamePointType {
 
 func (g GamePoint) UpdateScore() GamePointUpdate {
 	return g.updateScore
+}
+
+func (g GamePoint) PointDestination() GamePointDestination {
+	return g.pointDestination
 }

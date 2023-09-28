@@ -1,4 +1,4 @@
-package tennisstatus
+package cbtennis
 
 type MatchManager struct {
 	match *TennisMatch

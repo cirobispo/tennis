@@ -1,4 +1,4 @@
-package tennisstatus
+package cbtennis
 
 type OnGameStarting func()
 type OnUpdatePoint func(increasedPoint bool, increasedBy TurnPosition)
@@ -6,7 +6,6 @@ type OnFinishedGame func()
 
 type GameManager interface {
 	GetScore() ScoreManager
-	GetScoreData() ScoreData
 	AddPointing(point GamePointing)
 	AddGameStartingEvent(gameStartEvent OnGameStarting)
 	AddUpdatePointEvent(updatePointEvent OnUpdatePoint)
@@ -57,30 +56,19 @@ func (g StandardGame) GetScore() ScoreManager {
 	return g.score
 }
 
-func (g StandardGame) GetScoreData() ScoreData {
-	s := g.score.(*GameScore)
-	return s
-}
-
 func (g *StandardGame) isThereDoubleFault() bool {
-	result := false
-	if size := len(g.points); size > 1 {
-		lastFault := g.points[size-1]
-		var priorFault GamePointing
-		index := size - 2
-		for {
-			if lastPoint := g.points[index]; lastPoint.GetType() != GPTServeLet {
-				priorFault = lastPoint
-				break
-			}
-			index--
-			if index < 0 {
-				break
-			}
+	sum := 0
+
+	size := len(g.points)
+	for i := size - 1; i >= 0; i-- {
+		if item := g.points[i]; item.UpdateScore() == GPUCondicional {
+			sum++
+		} else if item.GetType() != GPTServeLet {
+			break
 		}
-		result = lastFault.UpdateScore() == GPUCondicional && (priorFault != nil && priorFault.UpdateScore() == GPUCondicional)
 	}
-	return result
+
+	return sum == 2
 }
 
 func (g *StandardGame) UpdateBallAndServeTurn(AB TurnPosition, point GamePointing, pointAdded bool) {
@@ -98,23 +86,23 @@ func (g *StandardGame) AddPointing(point GamePointing) {
 
 	g.points = append(g.points, point)
 
-	pointAdded := point.UpdateScore() == GPUYes
-	isDoubleFault := g.isThereDoubleFault()
-	if pointAdded || isDoubleFault {
-		if isDoubleFault {
-			pointAdded = true
+	pointAdded := point.UpdateScore() == GPUYes || g.isThereDoubleFault()
+	if pointAdded {
+		g.score.UpdateScore(g.ballSide.turnReference, point.PointDestination())
+
+		if g.updatePointEvent != nil {
+			g.executeUpdatePointEvent(pointAdded, g.ballSide.BeginningTurn())
+		}
+
+		// if s.maxPoints.GetToMaxPoint(s.valueA, s.valueB) {
+		// 	s.executeScoreGameEvent(s.valueA, s.valueB)
+		// }
+
+		g.ballSide.ResetTurn()
+	} else {
+		if point.UpdateScore() == GPUNo && point.PointDestination() == GPDNone && point.GetType() != GPTServeLet {
 			g.ballSide.Turn()
 		}
-		g.score.UpdateScore(g.ballSide.turnReference)
-		g.ballSide.ResetTurn()
-	}
-
-	if g.updatePointEvent != nil {
-		g.executeUpdatePointEvent(pointAdded, g.ballSide.turnReference)
-	}
-
-	if point.GetType() != GPTServeLet && point.UpdateScore() != GPUCondicional {
-		g.ballSide.Turn()
 	}
 }
 

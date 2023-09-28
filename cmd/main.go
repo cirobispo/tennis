@@ -1,9 +1,9 @@
 package main
 
 import (
+	"cbtennis"
 	"fmt"
 	"math/rand"
-	"tennisstatus"
 )
 
 func main() {
@@ -11,54 +11,54 @@ func main() {
 	//setScore()
 	//setMatch()
 	match := GetMatch()
-	game := tennisstatus.NewSingleStandardGame(&match)
+	game := cbtennis.NewSingleStandardGame(&match)
 	gameSimulation(&game)
 }
 
-func GetMatch() tennisstatus.TennisMatch {
-	teamA := tennisstatus.NewTeam([]string{"Ciro", "Gabriel"})
-	teamB := tennisstatus.NewTeam([]string{"Leo", "Lisandra"})
+func GetMatch() cbtennis.TennisMatch {
+	teamA := cbtennis.NewTeam([]string{"Ciro", "Gabriel"})
+	teamB := cbtennis.NewTeam([]string{"Leo", "Lisandra"})
 
-	match := tennisstatus.NewTennisMatch(teamA, teamB, 1, 4, false, false)
-	//	matchManager := tennisstatus.NewMatchManager(&match)
+	match := cbtennis.NewTennisMatch(teamA, teamB, 1, 4, false, false)
+	//	matchManager := cbtennis.NewMatchManager(&match)
 	return match
 }
 
-func gameSimulation(game tennisstatus.GameManager) {
-	service := func() tennisstatus.GamePointing {
+func gameSimulation(game cbtennis.GameManager) {
+	service := func() cbtennis.GamePointing {
 		switch rand.Intn(5) {
 		case 4:
-			return tennisstatus.NewGamePointAce()
+			return cbtennis.NewGamePointAce()
 		case 3:
-			return tennisstatus.NewGamePointServeOut()
+			return cbtennis.NewGamePointServeOut()
 		case 2:
-			return tennisstatus.NewGamePointServeIn()
+			return cbtennis.NewGamePointServeIn()
 		case 1:
-			return tennisstatus.NewGamePointServeNet()
+			return cbtennis.NewGamePointServeNet()
 		default:
-			return tennisstatus.NewGamePointServeLet()
+			return cbtennis.NewGamePointServeLet()
 		}
 	}
 
-	returnService := func() tennisstatus.GamePointing {
+	returnService := func() cbtennis.GamePointing {
 		switch rand.Intn(3) {
 		case 2:
-			return tennisstatus.NewGamePointReturnIn()
+			return cbtennis.NewGamePointReturnIn()
 		case 1:
-			return tennisstatus.NewGamePointReturnNet()
+			return cbtennis.NewGamePointReturnNet()
 		default:
-			return tennisstatus.NewGamePointReturnOut()
+			return cbtennis.NewGamePointReturnOut()
 		}
 	}
 
-	eRally := func() tennisstatus.GamePointing {
+	eRally := func() cbtennis.GamePointing {
 		switch rand.Intn(3) {
 		case 2:
-			return tennisstatus.NewGamePointIn()
+			return cbtennis.NewGamePointIn()
 		case 1:
-			return tennisstatus.NewGamePointNet()
+			return cbtennis.NewGamePointNet()
 		default:
-			return tennisstatus.NewGamePointOut()
+			return cbtennis.NewGamePointOut()
 		}
 	}
 
@@ -72,27 +72,26 @@ func gameSimulation(game tennisstatus.GameManager) {
 		sair = true
 	})
 
-	game.AddUpdatePointEvent(func(increasedPoint bool, increasedBy tennisstatus.TurnPosition) {
+	updatePointEvent := func(increasedPoint bool, increasedBy cbtennis.TurnPosition) {
 		if increasedPoint {
-			g := game.(*tennisstatus.StandardGame)
-			v1, v2 := g.GetScoreData().GetScoreValues(increasedBy)
-			data := tennisstatus.NewScoreDataWrapper(tennisstatus.TPEven, g.GetScoreData().ScoreType(), v1, v2)
-			fmt.Printf("%s x %s\n", data.GetValueA(), data.GetValueB())
+			fmt.Println(increasedBy)
 		}
-	})
+	}
+
+	game.AddUpdatePointEvent(updatePointEvent)
 
 	for {
 		b := service()
 		game.AddPointing(b)
-		if b.GetType() == tennisstatus.GPTServeIn {
+		if b.GetType() == cbtennis.GPTServeIn {
 			returns := returnService()
 			game.AddPointing(returns)
 
-			if returns.GetType() == tennisstatus.GPTReturnIn {
+			if returns.GetType() == cbtennis.GPTReturnIn {
 				for {
 					rally := eRally()
 					game.AddPointing(rally)
-					if rally.GetType() != tennisstatus.GPTIn {
+					if rally.GetType() != cbtennis.GPTIn {
 						break
 					}
 				}
@@ -106,16 +105,16 @@ func gameSimulation(game tennisstatus.GameManager) {
 }
 
 func setMatch() {
-	teamA := tennisstatus.NewTeam([]string{"Ciro", "Gabriel"})
-	teamB := tennisstatus.NewTeam([]string{"Leo", "Lisandra"})
+	teamA := cbtennis.NewTeam([]string{"Ciro", "Gabriel"})
+	teamB := cbtennis.NewTeam([]string{"Leo", "Lisandra"})
 
-	match := tennisstatus.NewTennisMatch(teamA, teamB, 1, 4, false, false)
-	matchManager := tennisstatus.NewMatchManager(&match)
+	match := cbtennis.NewTennisMatch(teamA, teamB, 1, 4, false, false)
+	matchManager := cbtennis.NewMatchManager(&match)
 
 	rallySimulation(matchManager)
 }
 
-func rallySimulation(match tennisstatus.MatchManager) {
+func rallySimulation(match cbtennis.MatchManager) {
 	currentSet := match.NewSet()
 
 	game := currentSet.NewGame()
@@ -123,69 +122,69 @@ func rallySimulation(match tennisstatus.MatchManager) {
 		game = currentSet.NewGame()
 	})
 
-	service := func() tennisstatus.GamePointing {
+	service := func() cbtennis.GamePointing {
 		switch rand.Intn(5) {
 		case 4:
-			return tennisstatus.NewGamePointAce()
+			return cbtennis.NewGamePointAce()
 		case 3:
-			return tennisstatus.NewGamePointServeOut()
+			return cbtennis.NewGamePointServeOut()
 		case 2:
-			return tennisstatus.NewGamePointServeIn()
+			return cbtennis.NewGamePointServeIn()
 		case 1:
-			return tennisstatus.NewGamePointServeNet()
+			return cbtennis.NewGamePointServeNet()
 		default:
-			return tennisstatus.NewGamePointServeLet()
+			return cbtennis.NewGamePointServeLet()
 		}
 	}
 
-	returnService := func() tennisstatus.GamePointing {
+	returnService := func() cbtennis.GamePointing {
 		switch rand.Intn(3) {
 		case 2:
-			return tennisstatus.NewGamePointReturnIn()
+			return cbtennis.NewGamePointReturnIn()
 		case 1:
-			return tennisstatus.NewGamePointReturnNet()
+			return cbtennis.NewGamePointReturnNet()
 		default:
-			return tennisstatus.NewGamePointReturnOut()
+			return cbtennis.NewGamePointReturnOut()
 		}
 	}
 
-	eRally := func() tennisstatus.GamePointing {
+	eRally := func() cbtennis.GamePointing {
 		switch rand.Intn(3) {
 		case 2:
-			return tennisstatus.NewGamePointReturnIn()
+			return cbtennis.NewGamePointReturnIn()
 		case 1:
-			return tennisstatus.NewGamePointReturnNet()
+			return cbtennis.NewGamePointReturnNet()
 		default:
-			return tennisstatus.NewGamePointReturnOut()
+			return cbtennis.NewGamePointReturnOut()
 		}
 	}
 
 	for i := 0; i < 10; i++ {
 		b := service()
 		game.AddPointing(b)
-		if b.GetType() == tennisstatus.GPTServeIn {
+		if b.GetType() == cbtennis.GPTServeIn {
 			returns := returnService()
 			game.AddPointing(returns)
 
-			if returns.GetType() == tennisstatus.GPTReturnIn {
+			if returns.GetType() == cbtennis.GPTReturnIn {
 				for {
 					rally := eRally()
 					game.AddPointing(rally)
-					if rally.GetType() != tennisstatus.GPTIn {
+					if rally.GetType() != cbtennis.GPTIn {
 						break
 					}
 				}
 			}
 		}
 
-		//		scoreData := game.GetScore().(tennisstatus.ScoreData)
+		//		scoreData := game.GetScore().(cbtennis.ScoreData)
 	}
 }
 
 func setScore() {
 	sair := false
 	largestSet := 0
-	score := tennisstatus.NewSetScore()
+	score := cbtennis.NewSetScore()
 	score.AddReachedScoreEvent(func(valueA, valueB int) {
 		sair = true
 	})
@@ -201,9 +200,12 @@ func setScore() {
 
 	for {
 		AB := rand.Intn(2)
-		fmt.Print(AB)
+		fmt.Printf("AB:%v\t", AB)
 
-		score.UpdateScore(tennisstatus.TurnPosition(AB))
+		GPD := rand.Intn(2)
+		fmt.Printf("\tGPD: %v\t", GPD)
+
+		score.UpdateScore(cbtennis.TurnPosition(AB), cbtennis.GamePointDestination(GPD))
 		if largestSet >= 7 {
 			fmt.Println()
 			break
@@ -220,16 +222,16 @@ func setScore() {
 func gameScore() {
 	sair := false
 	largestGame := 0
-	ballSide := tennisstatus.NewTurnManager(tennisstatus.TPEven)
-	score := tennisstatus.NewGameScore()
+	ballSide := cbtennis.NewTurnManager(cbtennis.TPEven)
+	score := cbtennis.NewGameScore()
 
 	score.AddReachedScoreEvent(func(valueA, valueB int) {
 		sair = true
 	})
 
 	score.AddChangedScoreEvent(func() {
-		v1, v2 := score.GetScoreValues(tennisstatus.TPEven)
-		wrapper := tennisstatus.NewScoreDataWrapper(tennisstatus.TPEven, score.ScoreType(), v1, v2)
+		v1, v2 := score.GetScoreValues(cbtennis.TPEven)
+		wrapper := cbtennis.NewScoreDataWrapper(cbtennis.TPEven, score.ScoreType(), v1, v2)
 
 		fmt.Printf("\t%s x %s\n", wrapper.GetValueA(), wrapper.GetValueB())
 
@@ -241,9 +243,9 @@ func gameScore() {
 		ballSide.Turn()
 	})
 
-	ballSide.AddTurnChangeEvent(func(turn tennisstatus.TurnPosition) {
+	ballSide.AddTurnChangeEvent(func(turn cbtennis.TurnPosition) {
 		result := "sacador"
-		if turn != tennisstatus.TPEven {
+		if turn != cbtennis.TPEven {
 			result = "recebedor"
 		}
 
@@ -254,7 +256,7 @@ func gameScore() {
 		AB := rand.Intn(2)
 		fmt.Print(AB)
 
-		score.UpdateScore(tennisstatus.TurnPosition(AB))
+		//		score.UpdateScore(cbtennis.TurnPosition(AB))
 		if largestGame >= 5 {
 			fmt.Println()
 			break
@@ -269,32 +271,32 @@ func gameScore() {
 }
 
 func buildAMatch() {
-	teamA := tennisstatus.NewTeam([]string{"Ciro", "Gabriel"})
-	teamB := tennisstatus.NewTeam([]string{"Leo", "Lisandra"})
+	teamA := cbtennis.NewTeam([]string{"Ciro", "Gabriel"})
+	teamB := cbtennis.NewTeam([]string{"Leo", "Lisandra"})
 
-	match := tennisstatus.NewTennisMatch(teamA, teamB, 1, 4, false, false)
-	matchManager := tennisstatus.NewMatchManager(&match)
+	match := cbtennis.NewTennisMatch(teamA, teamB, 1, 4, false, false)
+	matchManager := cbtennis.NewMatchManager(&match)
 
 	currentSet := matchManager.GetCurrentSet()
 
 	currentGame := currentSet.GetCurrentGame()
-	currentGame.AddPointing(tennisstatus.NewGamePointAce())
+	currentGame.AddPointing(cbtennis.NewGamePointAce())
 
-	currentGame.AddPointing(tennisstatus.NewGamePointServeIn())
-	currentGame.AddPointing(tennisstatus.NewGamePointReturnIn())
-	currentGame.AddPointing(tennisstatus.NewGamePointIn())
-	currentGame.AddPointing(tennisstatus.NewGamePointOut())
+	currentGame.AddPointing(cbtennis.NewGamePointServeIn())
+	currentGame.AddPointing(cbtennis.NewGamePointReturnIn())
+	currentGame.AddPointing(cbtennis.NewGamePointIn())
+	currentGame.AddPointing(cbtennis.NewGamePointOut())
 
-	currentGame.AddPointing(tennisstatus.NewGamePointServeIn())
-	currentGame.AddPointing(tennisstatus.NewGamePointReturnIn())
-	currentGame.AddPointing(tennisstatus.NewGamePointOut())
+	currentGame.AddPointing(cbtennis.NewGamePointServeIn())
+	currentGame.AddPointing(cbtennis.NewGamePointReturnIn())
+	currentGame.AddPointing(cbtennis.NewGamePointOut())
 
-	currentGame.AddPointing(tennisstatus.NewGamePointAce())
+	currentGame.AddPointing(cbtennis.NewGamePointAce())
 
-	currentGame.AddPointing(tennisstatus.NewGamePointServeIn())
-	currentGame.AddPointing(tennisstatus.NewGamePointReturnIn())
-	currentGame.AddPointing(tennisstatus.NewGamePointIn())
-	currentGame.AddPointing(tennisstatus.NewGamePointOut())
+	currentGame.AddPointing(cbtennis.NewGamePointServeIn())
+	currentGame.AddPointing(cbtennis.NewGamePointReturnIn())
+	currentGame.AddPointing(cbtennis.NewGamePointIn())
+	currentGame.AddPointing(cbtennis.NewGamePointOut())
 
 	showScore := func() {
 		a, b := 0, 0
