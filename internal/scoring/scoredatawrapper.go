@@ -1,35 +1,12 @@
-package cbtennis
+package scoring
 
-import (
-	"fmt"
-)
-
-type OnScoreChange func()
-type OnScoreGame func(valueA, valueB int)
-
-type ScoreType int
-
-const (
-	STCustom        ScoreType = 0
-	STGame          ScoreType = 1
-	STSet           ScoreType = 2
-	STMatch         ScoreType = 3
-	STTieBreak      ScoreType = 4
-	STSuperTieBreak ScoreType = 5
-)
-
-type ScoreManager interface {
-	ResetScore()
-	UpdateScore(AB TurnPosition, pointDestination GamePointDestination)
-	AddChangedScoreEvent(scoreChangeEvent OnScoreChange)
-	AddReachedScoreEvent(scoreGameEvent OnScoreGame)
-}
+import "fmt"
 
 type ScoreDataWrapper struct {
 	valueA, valueB string
 }
 
-func NewScoreDataWrapper(AB TurnPosition, scoreType ScoreType, vA, vB int) ScoreDataWrapper {
+func NewScoreDataWrapper(scoreType ScoringType, vA, vB int) ScoreDataWrapper {
 	scoreToText := func(value int) string {
 		if scoreType == STGame {
 			if value == 0 {
