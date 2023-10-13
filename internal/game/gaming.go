@@ -11,6 +11,7 @@ type OnUpdatePoint func(turn turning.TurnPosition, point gamepoint.GamePointType
 type OnFinishedGame func(valueA, valueB int)
 
 type GameManager interface {
+	StartGame()
 	GetScore() scoring.Scoring
 	AddPointing(point gamepoint.GamePointing)
 	AddGameStartingEvent(gameStartEvent OnGameStarting)

@@ -15,7 +15,7 @@ func NewTeam(playersName []string) *Team {
 		players = append(players, player)
 	}
 
-	turnM := turning.New(turning.TPBegin)
+	turnM := turning.New(turning.TPTurnA)
 
 	t := &Team{
 		players: players,

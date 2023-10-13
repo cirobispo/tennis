@@ -5,6 +5,7 @@ type ScoringCountControl interface {
 	HasToConfirm() bool
 	PlugToScoring(s *Score)
 	IsDone(valueA, valueB int) bool
+	IsTie() bool
 	UpdateScore(self ScoringCountControl, valueA, valueB *int)
 }
 
@@ -40,4 +41,8 @@ func (c ScoreCountControl) MaxValue() int {
 
 func (c ScoreCountControl) HasToConfirm() bool {
 	return c.hasToConfirm
+}
+
+func (c ScoreCountControl) IsTie() bool {
+	return (c.score.valueA == c.maxValue) && (c.score.valueB == c.maxValue)
 }

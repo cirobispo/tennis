@@ -3,8 +3,8 @@ package turning
 type TurnPosition int
 
 const (
-	TPBegin    TurnPosition = 0
-	TPOpposite TurnPosition = 1
+	TPTurnA TurnPosition = 0
+	TPTurnB TurnPosition = 1
 )
 
 type OnTurnChange func(turn TurnPosition)
@@ -42,6 +42,10 @@ func (t Turn) CurrentTurn() TurnPosition {
 
 func (t Turn) BeginningTurn() TurnPosition {
 	return t.beginningTurn
+}
+
+func (t *Turn) SetBeginningTurn(turnStartPosition TurnPosition) {
+	t.beginningTurn = turnStartPosition
 }
 
 func (t *Turn) AddResetTurnEvent(resetTurnEvent OnTurnReset) {

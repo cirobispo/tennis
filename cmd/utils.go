@@ -79,10 +79,10 @@ func rallyWinningBy(hits int, tp turning.TurnPosition) []gamepoint.GamePointing 
 		turn.DoTurn()
 	}
 
-	beginAligned := len(points)%2 == 0 && turn.CurrentTurn() == turning.TPBegin
-	oppositeAligned := len(points)%2 == 1 && turn.CurrentTurn() == turning.TPOpposite
+	beginAligned := len(points)%2 == 0 && turn.CurrentTurn() == turning.TPTurnA
+	oppositeAligned := len(points)%2 == 1 && turn.CurrentTurn() == turning.TPTurnB
 
-	if beginAligned || (oppositeAligned && tp == turning.TPOpposite) {
+	if beginAligned || (oppositeAligned && tp == turning.TPTurnB) {
 		points = append(points, devolution(pointWinner, tp))
 	} else {
 		var dev simpleDevolution = pointNet
@@ -96,11 +96,11 @@ func rallyWinningBy(hits int, tp turning.TurnPosition) []gamepoint.GamePointing 
 }
 
 func rallyWinningByServing(hits int) []gamepoint.GamePointing {
-	return rallyWinningBy(hits, turning.TPBegin)
+	return rallyWinningBy(hits, turning.TPTurnA)
 }
 
 func rallyWinningByReceiving(hits int) []gamepoint.GamePointing {
-	return rallyWinningBy(hits, turning.TPOpposite)
+	return rallyWinningBy(hits, turning.TPTurnB)
 }
 
 func servingWins() []gamepoint.GamePointing {
@@ -137,11 +137,38 @@ func receivingWins() []gamepoint.GamePointing {
 
 	points = append(points, gamepoint.NewGamePointAce())
 
+	points = append(points, servingInReturningNet()...)
+	points = append(points, servingInReturningNet()...)
+
+	points = append(points, servingInReturningOut()...)
+	points = append(points, servingInReturningOut()...)
+
+	return points
+}
+
+func tiebreakAWins(pointCount int) []gamepoint.GamePointing {
+	points := make([]gamepoint.GamePointing, 0, pointCount)
+
+	points = append(points, servingInReturningIn()...)
+	points = append(points, rallyWinningByServing(1)...)
+
 	points = append(points, servingInReturningIn()...)
 	points = append(points, rallyWinningByReceiving(1)...)
 
 	points = append(points, servingInReturningIn()...)
+	points = append(points, rallyWinningByServing(1)...)
+
+	points = append(points, servingInReturningIn()...)
 	points = append(points, rallyWinningByReceiving(1)...)
+
+	points = append(points, servingInReturningIn()...)
+	points = append(points, rallyWinningByServing(1)...)
+
+	points = append(points, servingInReturningIn()...)
+	points = append(points, rallyWinningByReceiving(1)...)
+
+	points = append(points, servingInReturningIn()...)
+	points = append(points, rallyWinningByServing(1)...)
 
 	return points
 }

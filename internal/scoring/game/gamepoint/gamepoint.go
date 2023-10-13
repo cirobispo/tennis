@@ -142,7 +142,7 @@ func NewGamePointWinner() GamePoint {
 
 func NewGamePointOut(turn turning.TurnPosition) GamePoint {
 	destination := GPDOpositeSide
-	if turn == turning.TPBegin {
+	if turn == turning.TPTurnA {
 		destination = GPDSameSide
 	}
 
@@ -155,7 +155,7 @@ func NewGamePointOut(turn turning.TurnPosition) GamePoint {
 
 func NewGamePointNet(turn turning.TurnPosition) GamePoint {
 	destination := GPDOpositeSide
-	if turn == turning.TPBegin {
+	if turn == turning.TPTurnA {
 		destination = GPDSameSide
 	}
 

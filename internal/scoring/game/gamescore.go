@@ -31,8 +31,8 @@ func updateGameScore(scc scoring.ScoringCountControl, valueA, valueB *int) {
 	var increment = 1
 	var value *int
 
-	pointOnA := (gcss.turn == turning.TPBegin && gcss.destination == gamepoint.GPDSameSide) ||
-		(gcss.turn == turning.TPOpposite && gcss.destination == gamepoint.GPDOpositeSide)
+	pointOnA := (gcss.turn == turning.TPTurnA && gcss.destination == gamepoint.GPDSameSide) ||
+		(gcss.turn == turning.TPTurnB && gcss.destination == gamepoint.GPDOpositeSide)
 
 	if *valueB > scc.MaxValue() || *valueA > scc.MaxValue() {
 		increment = -1
