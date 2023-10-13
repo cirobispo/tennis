@@ -2,7 +2,7 @@ package game
 
 import (
 	"cbtennis/internal/scoring"
-	"cbtennis/internal/scoring/game/gamepoint"
+	"cbtennis/internal/scoring/gamescore/gamepoint"
 	"cbtennis/internal/turning"
 )
 

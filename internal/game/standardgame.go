@@ -3,8 +3,8 @@ package game
 import (
 	"cbtennis/internal/player"
 	"cbtennis/internal/scoring"
-	gamescore "cbtennis/internal/scoring/game"
-	"cbtennis/internal/scoring/game/gamepoint"
+	"cbtennis/internal/scoring/gamescore"
+	"cbtennis/internal/scoring/gamescore/gamepoint"
 	"cbtennis/internal/turning"
 	"fmt"
 )
@@ -22,10 +22,10 @@ type StandardGame struct {
 	gameFinishEvent  []OnFinishedGame
 }
 
-func NewSingleStandardGame(scc scoring.ScoringCountControl, challenge player.Challenging) *StandardGame {
+func NewSingleStandardGame(scc scoring.ScoringCountControl, challenge player.Challenging, startSide turning.TurnPosition) *StandardGame {
 	score := gamescore.New(scc)
-	ballSide := turning.New(turning.TPTurnA)
-	serveSide := turning.New(turning.TPTurnA)
+	ballSide := turning.New(startSide)
+	serveSide := turning.New(startSide)
 
 	game := &StandardGame{
 		ballSide:         ballSide,

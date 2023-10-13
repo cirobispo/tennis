@@ -4,8 +4,8 @@ import (
 	"cbtennis/internal/game"
 	"cbtennis/internal/player"
 	"cbtennis/internal/scoring"
-	"cbtennis/internal/scoring/game/gamepoint"
-	"cbtennis/internal/scoring/tiebreak"
+	"cbtennis/internal/scoring/gamescore"
+	"cbtennis/internal/scoring/gamescore/gamepoint"
 	"cbtennis/internal/set"
 	"cbtennis/internal/turning"
 	"fmt"
@@ -155,12 +155,12 @@ func simulaMatch() {
 }
 
 func main() {
-	// scc := gamescore.NewGameScoreCountControl(4, true)
-	// game := game.NewSingleStandardGame(scc, createChallenge)
-
-	scc := tiebreak.NewTieBreakScoreCountControl(7, true)
-	game := game.NewTieBreak(scc, createChallenge, turning.TPTurnB)
-	simulateTieBreak(game)
+	scc := gamescore.NewGameScoreCountControl(4, true)
+	game := game.NewSingleStandardGame(scc, createChallenge, turning.TPTurnB)
+	simulateGame(game, servingWins())
+	// scc := tiebreak.NewTieBreakScoreCountControl(7, true)
+	// game := game.NewTieBreak(scc, createChallenge, turning.TPTurnB)
+	// simulateTieBreak(game)
 
 	// set := set.New(turning.TPTurnA, 4, true, false, true)
 	// simulaSet(set)

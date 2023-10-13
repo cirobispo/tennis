@@ -3,7 +3,7 @@ package game
 import (
 	"cbtennis/internal/player"
 	"cbtennis/internal/scoring"
-	"cbtennis/internal/scoring/game/gamepoint"
+	"cbtennis/internal/scoring/gamescore/gamepoint"
 	"cbtennis/internal/scoring/tiebreak"
 	"cbtennis/internal/turning"
 )
@@ -18,11 +18,11 @@ type TieBreak struct {
 	challengerTurnEvent []OnChallengerServingTurn
 }
 
-func NewTieBreak(scc scoring.ScoringCountControl, challenge player.Challenging, challengerSide turning.TurnPosition) *TieBreak {
-	game := NewSingleStandardGame(scc, challenge)
+func NewTieBreak(scc scoring.ScoringCountControl, challenge player.Challenging, startSide turning.TurnPosition) *TieBreak {
+	game := NewSingleStandardGame(scc, challenge, startSide)
 	return &TieBreak{
 		StandardGame:   game,
-		challengerSide: turning.New(challengerSide),
+		challengerSide: turning.New(startSide),
 	}
 }
 

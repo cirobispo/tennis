@@ -1,7 +1,7 @@
 package main
 
 import (
-	"cbtennis/internal/scoring/game/gamepoint"
+	"cbtennis/internal/scoring/gamescore/gamepoint"
 	"cbtennis/internal/turning"
 	"math/rand"
 )
