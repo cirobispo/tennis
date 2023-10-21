@@ -99,7 +99,13 @@ func TieBreak(defiantStarting turning.TurnPosition, valueA, valueB int) []gamepo
 				points = append(points, ServingDoubleFalt()...)
 			}
 		} else {
-			if defiantServing.CurrentTurn() == turning.TPTurnA {
+			if defiantServing.CurrentTurn() == turning.TPTurnB && servingSide.CurrentTurn() == turning.TPTurnA {
+				points = append(points, ServingDoubleFalt()...)
+			} else if defiantServing.CurrentTurn() == turning.TPTurnB && servingSide.CurrentTurn() == turning.TPTurnB {
+				points = append(points, gamepoint.NewGamePointAce())
+			} else if defiantServing.CurrentTurn() == turning.TPTurnA && servingSide.CurrentTurn() == turning.TPTurnB {
+				points = append(points, ServingDoubleFalt()...)
+			} else if defiantServing.CurrentTurn() == turning.TPTurnA && servingSide.CurrentTurn() == turning.TPTurnA {
 				points = append(points, gamepoint.NewGamePointAce())
 			}
 		}
