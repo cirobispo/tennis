@@ -19,18 +19,3 @@ func newSetScoreCountControl(maxValue int, confirm bool, update scoring.Updating
 func (s *SetScoreCountControl) SetCurrentGame(game game.GameManager) {
 	s.game = game
 }
-
-func (c SetScoreCountControl) IsDone(valueA, valueB int) bool {
-	if c.UpdateHandler != nil {
-		return c.IsDoneHandler(c.MaxValue(), c.HasToConfirm(), valueA, valueB)
-	}
-	return false
-}
-
-func (c SetScoreCountControl) UpdateScore(scc scoring.ScoringCountControl, valueA, valueB *int) {
-	sscc := scc.(*SetScoreCountControl)
-
-	if c.UpdateHandler != nil {
-		c.UpdateHandler(sscc, valueA, valueB)
-	}
-}

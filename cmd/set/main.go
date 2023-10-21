@@ -1,10 +1,10 @@
 package main
 
 import (
+	"cbtennis/cmd"
 	"cbtennis/internal/game"
 	"cbtennis/internal/player"
 	"cbtennis/internal/scoring"
-	"cbtennis/internal/scoring/gamescore"
 	"cbtennis/internal/scoring/gamescore/gamepoint"
 	"cbtennis/internal/set"
 	"cbtennis/internal/turning"
@@ -51,7 +51,7 @@ func simulateGame(game game.GameManager, points []gamepoint.GamePointing) {
 	})
 
 	exit := false
-	game.AddFinishedGameEvent(func(valueA, valueB int) {
+	game.AddFinishedGameEvent(func(servingSide turning.TurnPosition, valueA, valueB int) {
 		helper := scoring.NewScoreDataWrapper(game.GetScore().GetScoringType(), valueA, valueB)
 
 		fmt.Printf("Placar terminado: %s x %s", helper.GetValueA(), helper.GetValueB())
@@ -61,52 +61,6 @@ func simulateGame(game game.GameManager, points []gamepoint.GamePointing) {
 	game.StartGame()
 	for _, p := range points {
 		game.AddPointing(p)
-		if exit {
-			break
-		}
-	}
-
-	fmt.Println()
-}
-
-func simulateTieBreak(g game.GameManager) {
-	tiebreak := g.(*game.TieBreak)
-
-	exit := false
-	tiebreak.AddFinishedGameEvent(func(valueA, valueB int) {
-		helper := scoring.NewScoreDataWrapper(tiebreak.GetScore().GetScoringType(), valueA, valueB)
-
-		fmt.Printf("Placar terminado: %s x %s", helper.GetValueA(), helper.GetValueB())
-		exit = true
-	})
-
-	tiebreak.AddServeTurnChangeEvent(func(turn turning.TurnPosition) {
-		server := "A"
-		if turn == turning.TPTurnB {
-			server = "B"
-		}
-
-		fmt.Printf("saca do lado %v\n", server)
-	})
-
-	tiebreak.AddChallengerTurnChangeEvent(func(challengerTurn, side turning.TurnPosition) {
-		server := "A"
-		if challengerTurn == turning.TPTurnB {
-			server = "B"
-		}
-
-		pos := "deuce"
-		if side == turning.TPTurnB {
-			pos = "ad"
-		}
-
-		fmt.Printf("%v saca no lado %v\n", server, pos)
-	})
-
-	tiebreak.StartGame()
-	points := tiebreakAWins(7)
-	for _, p := range points {
-		tiebreak.AddPointing(p)
 		if exit {
 			break
 		}
@@ -136,9 +90,9 @@ func simulaSet(set *set.Set) {
 
 		var points []gamepoint.GamePointing
 		if r := rand.Intn(2); r == 0 {
-			points = servingWins()
+			points = cmd.Score_Gamex10()
 		} else {
-			points = receivingWins()
+			points = cmd.Score_30xGame()
 		}
 
 		simulateGame(game, points)
@@ -150,18 +104,7 @@ func simulaSet(set *set.Set) {
 	}
 }
 
-func simulaMatch() {
-
-}
-
 func main() {
-	scc := gamescore.NewGameScoreCountControl(4, true)
-	game := game.NewSingleStandardGame(scc, createChallenge, turning.TPTurnB)
-	simulateGame(game, servingWins())
-	// scc := tiebreak.NewTieBreakScoreCountControl(7, true)
-	// game := game.NewTieBreak(scc, createChallenge, turning.TPTurnB)
-	// simulateTieBreak(game)
-
-	// set := set.New(turning.TPTurnA, 4, true, false, true)
-	// simulaSet(set)
+	set := set.New(turning.TPTurnA, 4, true, false, true)
+	simulaSet(set)
 }

@@ -1,6 +1,8 @@
 package player
 
 type Challenging interface {
+	GetDefiantA() Playing
+	GetDefiantB() Playing
 }
 
 type Challenge struct {
@@ -13,4 +15,12 @@ func NewChallenge(defiantA, defiantB Playing) Challenging {
 		defiantA: defiantA,
 		defiantB: defiantB,
 	}
+}
+
+func (c Challenge) GetDefiantA() Playing {
+	return c.defiantA
+}
+
+func (c Challenge) GetDefiantB() Playing {
+	return c.defiantB
 }

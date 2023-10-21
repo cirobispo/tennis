@@ -44,8 +44,11 @@ func (t Turn) BeginningTurn() TurnPosition {
 	return t.beginningTurn
 }
 
-func (t *Turn) SetBeginningTurn(turnStartPosition TurnPosition) {
+func (t *Turn) SetBeginningTurn(turnStartPosition TurnPosition, resetTurn bool) {
 	t.beginningTurn = turnStartPosition
+	if resetTurn {
+		t.ResetTurn(false)
+	}
 }
 
 func (t *Turn) AddResetTurnEvent(resetTurnEvent OnTurnReset) {

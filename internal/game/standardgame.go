@@ -10,12 +10,12 @@ import (
 )
 
 type StandardGame struct {
-	ballSide  *turning.Turn
-	serveSide *turning.Turn
-	challenge player.Challenging
-	score     scoring.Scoring
-	points    []gamepoint.GamePointing
-	started   bool
+	ballSide    *turning.Turn
+	servingSide *turning.Turn
+	challenge   player.Challenging
+	score       scoring.Scoring
+	points      []gamepoint.GamePointing
+	started     bool
 
 	gameStartEvent   []OnGameStarting
 	updatePointEvent []OnUpdatePoint
@@ -29,7 +29,7 @@ func NewSingleStandardGame(scc scoring.ScoringCountControl, challenge player.Cha
 
 	game := &StandardGame{
 		ballSide:         ballSide,
-		serveSide:        serveSide,
+		servingSide:      serveSide,
 		challenge:        challenge,
 		score:            score,
 		points:           make([]gamepoint.GamePointing, 0),
@@ -53,7 +53,7 @@ func NewSingleStandardGame(scc scoring.ScoringCountControl, challenge player.Cha
 func (g *StandardGame) StartGame() {
 	fmt.Printf("Jogo iniciado\n")
 	g.ballSide.ResetTurn(true)
-	g.serveSide.ResetTurn(true)
+	g.servingSide.ResetTurn(true)
 	g.executeGameStartEvent()
 	g.started = true
 }
@@ -69,6 +69,9 @@ func (g *StandardGame) isThereDoubleFault() bool {
 	for i := size - 1; i >= 0; i-- {
 		if item := g.points[i]; item.UpdateScore() == gamepoint.GPUCondicional {
 			sum++
+			if sum == 2 {
+				break
+			}
 		} else if item.GetType() != gamepoint.GPTServeLet {
 			break
 		}
@@ -77,18 +80,24 @@ func (g *StandardGame) isThereDoubleFault() bool {
 	return sum == 2
 }
 
+func (g *StandardGame) updateGSCCData(point gamepoint.GamePointing) *gamescore.GameScoreCountControl {
+	scc := g.score.GetScoreCountControl().(*gamescore.GameScoreCountControl)
+	scc.SetTurn(g.ballSide.CurrentTurn())
+	scc.SetDestination(point.PointDestination())
+
+	return scc
+}
+
 func (g *StandardGame) AddPointing(point gamepoint.GamePointing) {
 	if g.started {
 		g.points = append(g.points, point)
 
 		pointAdded := point.UpdateScore() == gamepoint.GPUYes || g.isThereDoubleFault()
 		if pointAdded {
-			scc := g.score.GetScoreCountControl().(*gamescore.GameScoreCountControl)
-			scc.SetTurn(g.ballSide.CurrentTurn())
-			scc.SetDestination(point.PointDestination())
+			g.updateGSCCData(point)
 			g.score.UpdateScore()
 			g.ballSide.ResetTurn(false)
-			g.serveSide.DoTurn()
+			g.servingSide.DoTurn()
 		} else {
 			if point.UpdateScore() == gamepoint.GPUNo && point.PointDestination() == gamepoint.GPDNone && point.GetType() != gamepoint.GPTServeLet {
 				g.ballSide.DoTurn()
@@ -114,7 +123,7 @@ func (g *StandardGame) AddBallTurnChangeEvent(turnChangeEvent turning.OnTurnChan
 }
 
 func (g *StandardGame) AddServeTurnChangeEvent(turnChangeEvent turning.OnTurnChange) {
-	g.serveSide.AddTurnChangeEvent(turnChangeEvent)
+	g.servingSide.AddTurnChangeEvent(turnChangeEvent)
 }
 
 func (g StandardGame) executeGameStartEvent() {
@@ -128,7 +137,7 @@ func (g *StandardGame) executeGameFinishEvent() {
 	for i := 0; i < len(g.gameFinishEvent); i++ {
 		evt := g.gameFinishEvent[i]
 		valueA, valueB := g.score.GetStatus()
-		evt(valueA, valueB)
+		evt(g.servingSide.CurrentTurn(), valueA, valueB)
 	}
 
 	g.started = false

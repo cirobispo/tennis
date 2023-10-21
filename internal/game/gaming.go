@@ -8,7 +8,7 @@ import (
 
 type OnGameStarting func()
 type OnUpdatePoint func(turn turning.TurnPosition, point gamepoint.GamePointType, valueA, valueB int)
-type OnFinishedGame func(valueA, valueB int)
+type OnFinishedGame func(servingSide turning.TurnPosition, valueA, valueB int)
 
 type GameManager interface {
 	StartGame()

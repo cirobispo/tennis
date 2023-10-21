@@ -46,3 +46,16 @@ func (c ScoreCountControl) HasToConfirm() bool {
 func (c ScoreCountControl) IsTie() bool {
 	return (c.score.valueA == c.maxValue) && (c.score.valueB == c.maxValue)
 }
+
+func (c ScoreCountControl) IsDone(valueA, valueB int) bool {
+	if c.UpdateHandler != nil {
+		return c.IsDoneHandler(c.MaxValue(), c.HasToConfirm(), valueA, valueB)
+	}
+	return false
+}
+
+func (c ScoreCountControl) UpdateScore(scc ScoringCountControl, valueA, valueB *int) {
+	if c.UpdateHandler != nil {
+		c.UpdateHandler(scc, valueA, valueB)
+	}
+}

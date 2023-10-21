@@ -24,18 +24,3 @@ func (c *GameScoreCountControl) SetTurn(turn turning.TurnPosition) {
 func (c *GameScoreCountControl) SetDestination(destination gamepoint.GamePointDestination) {
 	c.destination = destination
 }
-
-func (c GameScoreCountControl) IsDone(valueA, valueB int) bool {
-	if c.UpdateHandler != nil {
-		return c.IsDoneHandler(c.MaxValue(), c.HasToConfirm(), valueA, valueB)
-	}
-	return false
-}
-
-func (c GameScoreCountControl) UpdateScore(scc scoring.ScoringCountControl, valueA, valueB *int) {
-	gscc := scc.(*GameScoreCountControl)
-
-	if c.UpdateHandler != nil {
-		c.UpdateHandler(gscc, valueA, valueB)
-	}
-}

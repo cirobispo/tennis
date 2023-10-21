@@ -59,35 +59,3 @@ func isGameFinished(maxValue int, hasToConfirm bool, valueA, valueB int) bool {
 
 	return simpleWin || confirmWin
 }
-
-// if pointDestination == gamepoint.GPDSameSide {
-// 	value = valueA
-// 	if turn == turning.TPOpposite {
-// 		value = valueB
-
-// 		if *valueA > maxValue {
-// 			increment = -1
-// 			value = valueA
-// 		}
-// 	} else {
-// 		if *valueB > maxValue {
-// 			increment = -1
-// 			value = valueB
-// 		}
-// 	}
-// } else {
-// 	value = valueB
-// 	if turn == turning.TPOpposite {
-// 		value = valueA
-
-// 		if *valueB > maxValue {
-// 			increment = -1
-// 			value = valueB
-// 		}
-// 	} else {
-// 		if *valueA > maxValue {
-// 			increment = -1
-// 			value = valueA
-// 		}
-// 	}
-// }

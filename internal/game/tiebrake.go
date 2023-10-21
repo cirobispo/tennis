@@ -8,28 +8,42 @@ import (
 	"cbtennis/internal/turning"
 )
 
-type OnChallengerServingTurn func(challengerTurn, side turning.TurnPosition)
+type OnDefiantServingTurn func(challengerTurn, side turning.TurnPosition)
 
 type TieBreak struct {
 	*StandardGame
-	challengerSide    *turning.Turn
+	defiantTurn       *turning.Turn
 	turnshiftCounting int
 
-	challengerTurnEvent []OnChallengerServingTurn
+	defiantServingTurnEvent []OnDefiantServingTurn
 }
 
 func NewTieBreak(scc scoring.ScoringCountControl, challenge player.Challenging, startSide turning.TurnPosition) *TieBreak {
-	game := NewSingleStandardGame(scc, challenge, startSide)
-	return &TieBreak{
-		StandardGame:   game,
-		challengerSide: turning.New(startSide),
+	game := &TieBreak{
+		StandardGame: NewSingleStandardGame(scc, challenge, startSide),
+		defiantTurn:  turning.New(startSide),
 	}
+
+	game.defiantTurn.AddTurnChangeEvent(func(turn turning.TurnPosition) {
+		game.executeDefiantServingTurnChange(turn, game.servingSide.CurrentTurn())
+	})
+
+	return game
 }
 
 func (t *TieBreak) StartGame() {
 	t.StandardGame.StartGame()
+	t.defiantTurn.ResetTurn(true)
 	t.turnshiftCounting = 1
-	t.executeGameStartEvent()
+}
+
+func (t *TieBreak) updateTSCCData(point gamepoint.GamePointing) *tiebreak.TieBreakScoreCountControl {
+	tscc := t.score.GetScoreCountControl().(*tiebreak.TieBreakScoreCountControl)
+	tscc.SetBallTurn(t.ballSide.CurrentTurn())
+	tscc.SetDestination(point.PointDestination())
+	tscc.SetServeTurn(t.defiantTurn.CurrentTurn())
+
+	return tscc
 }
 
 func (t *TieBreak) AddPointing(point gamepoint.GamePointing) {
@@ -37,19 +51,19 @@ func (t *TieBreak) AddPointing(point gamepoint.GamePointing) {
 
 	pointAdded := point.UpdateScore() == gamepoint.GPUYes || t.isThereDoubleFault()
 	if pointAdded {
-		tscc := t.score.GetScoreCountControl().(*tiebreak.TieBreakScoreCountControl)
-		tscc.SetTurn(t.ballSide.CurrentTurn())
-		tscc.SetDestination(point.PointDestination())
+		tscc := t.updateTSCCData(point)
 		t.score.UpdateScore()
-		t.serveSide.DoTurn()
-		t.turnshiftCounting++
-		if t.turnshiftCounting == 2 {
-			t.challengerSide.DoTurn()
-			t.ballSide.SetBeginningTurn(t.challengerSide.CurrentTurn())
-			t.executeChallengerTurnChange(t.challengerSide.CurrentTurn(), t.serveSide.CurrentTurn())
-			t.turnshiftCounting = 0
-		} else {
-			t.ballSide.ResetTurn(false)
+		if isDone := tscc.IsDone(t.score.GetStatus()); !isDone {
+			t.servingSide.DoTurn()
+			t.turnshiftCounting++
+			if t.turnshiftCounting == 2 {
+				t.ballSide.SetBeginningTurn(t.servingSide.CurrentTurn(), true)
+				t.servingSide.SetBeginningTurn(t.servingSide.CurrentTurn(), true)
+				t.defiantTurn.DoTurn()
+				t.turnshiftCounting = 0
+			} else {
+				t.ballSide.ResetTurn(false)
+			}
 		}
 	} else {
 		if point.UpdateScore() == gamepoint.GPUNo && point.PointDestination() == gamepoint.GPDNone && point.GetType() != gamepoint.GPTServeLet {
@@ -58,12 +72,12 @@ func (t *TieBreak) AddPointing(point gamepoint.GamePointing) {
 	}
 }
 
-func (t *TieBreak) AddChallengerTurnChangeEvent(challengerTurnEvent OnChallengerServingTurn) {
-	t.challengerTurnEvent = append(t.challengerTurnEvent, challengerTurnEvent)
+func (t *TieBreak) AddDefiantServingTurnEvent(challengerTurnEvent OnDefiantServingTurn) {
+	t.defiantServingTurnEvent = append(t.defiantServingTurnEvent, challengerTurnEvent)
 }
 
-func (t TieBreak) executeChallengerTurnChange(challengerTurn, side turning.TurnPosition) {
-	for _, evt := range t.challengerTurnEvent {
+func (t TieBreak) executeDefiantServingTurnChange(challengerTurn, side turning.TurnPosition) {
+	for _, evt := range t.defiantServingTurnEvent {
 		evt(challengerTurn, side)
 	}
 }
