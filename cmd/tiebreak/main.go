@@ -95,8 +95,7 @@ func simulateTieBreak(challenge player.Challenging, g game.GameManager, defiantS
 	})
 
 	tiebreak.StartGame()
-	//points := cmd.TieBreak_7x4()
-	points := cmd.TieBreak(defiantSide, 7, 2)
+	points := cmd.TieBreak(defiantSide, 7, 1)
 
 	for _, p := range points {
 		tiebreak.AddPointing(p)

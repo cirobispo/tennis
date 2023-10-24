@@ -6,47 +6,6 @@ import (
 	"math"
 )
 
-func TieBreak_7x4() []gamepoint.GamePointing {
-	points := make([]gamepoint.GamePointing, 0, 4)
-
-	points = append(points, gamepoint.NewGamePointAce())
-	//*1x0 v
-	points = append(points, ServingInReturningIn()...)
-	points = append(points, RallyWinningByServing(1)...)
-	//1x*1
-	points = append(points, ServingInReturningIn()...)
-	points = append(points, RallyWinningByReceiving(1)...)
-	//2x*1 v
-	points = append(points, ServingInReturningIn()...)
-	points = append(points, RallyWinningByServing(1)...)
-	//*3x1
-	points = append(points, ServingInReturningIn()...)
-	points = append(points, RallyWinningByServing(1)...)
-	//*4x1 v
-	points = append(points, ServingInReturningIn()...)
-	points = append(points, RallyWinningByServing(1)...)
-	//4x*2
-	points = append(points, ServingInReturningIn()...)
-	points = append(points, RallyWinningByReceiving(1)...)
-	//5x*2 v
-	points = append(points, ServingInReturningIn()...)
-	points = append(points, RallyWinningByReceiving(1)...)
-	//*5x3
-	points = append(points, ServingInReturningIn()...)
-	points = append(points, RallyWinningByReceiving(1)...)
-	//*5x4 v
-	points = append(points, ServingInReturningIn()...)
-	points = append(points, RallyWinningByReceiving(1)...)
-	//6x*4
-	points = append(points, ServingInReturningIn()...)
-	points = append(points, RallyWinningByReceiving(1)...)
-	//7x*4 v
-	points = append(points, ServingInReturningIn()...)
-	points = append(points, RallyWinningByServing(1)...)
-
-	return points
-}
-
 func TieBreak(defiantStarting turning.TurnPosition, valueA, valueB int) []gamepoint.GamePointing {
 	max := func(a, b int) int {
 		if b > a {
@@ -89,10 +48,10 @@ func TieBreak(defiantStarting turning.TurnPosition, valueA, valueB int) []gamepo
 
 	for i := 0; i < valueA+valueB-int(math.Abs(float64(pointsToEquivalence))); i++ {
 		if pointsToEquivalence > 0 {
-			if defiantServing.CurrentTurn() == turning.TPTurnB && servingSide.CurrentTurn() == turning.TPTurnA {
-				points = append(points, gamepoint.NewGamePointAce())
-			} else if defiantServing.CurrentTurn() == turning.TPTurnB && servingSide.CurrentTurn() == turning.TPTurnB {
+			if defiantServing.CurrentTurn() == turning.TPTurnB && servingSide.CurrentTurn() == turning.TPTurnB {
 				points = append(points, ServingDoubleFalt()...)
+			} else if defiantServing.CurrentTurn() == turning.TPTurnB && servingSide.CurrentTurn() == turning.TPTurnA {
+				points = append(points, gamepoint.NewGamePointAce())
 			} else if defiantServing.CurrentTurn() == turning.TPTurnA && servingSide.CurrentTurn() == turning.TPTurnB {
 				points = append(points, gamepoint.NewGamePointAce())
 			} else if defiantServing.CurrentTurn() == turning.TPTurnA && servingSide.CurrentTurn() == turning.TPTurnA {

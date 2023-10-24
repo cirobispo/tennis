@@ -55,14 +55,12 @@ func (t *TieBreak) AddPointing(point gamepoint.GamePointing) {
 		t.score.UpdateScore()
 		if isDone := tscc.IsDone(t.score.GetStatus()); !isDone {
 			t.servingSide.DoTurn()
+			t.ballSide.SetBeginningTurn(t.servingSide.CurrentTurn(), true)
+			t.servingSide.SetBeginningTurn(t.servingSide.CurrentTurn(), true)
 			t.turnshiftCounting++
 			if t.turnshiftCounting == 2 {
-				t.ballSide.SetBeginningTurn(t.servingSide.CurrentTurn(), true)
-				t.servingSide.SetBeginningTurn(t.servingSide.CurrentTurn(), true)
 				t.defiantTurn.DoTurn()
 				t.turnshiftCounting = 0
-			} else {
-				t.ballSide.ResetTurn(false)
 			}
 		}
 	} else {

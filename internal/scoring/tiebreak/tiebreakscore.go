@@ -26,58 +26,39 @@ func NewTieBreakScoreCountControl(maxValue int, hasToConfirm bool) scoring.Scori
 }
 
 func updateTieBreakScore(scc scoring.ScoringCountControl, valueA, valueB *int) {
-	tcss := scc.(*TieBreakScoreCountControl)
-
-	var increment = 1
 	var value *int
 
-	ballAtMySide := (tcss.serveTurn == turning.TPTurnA && tcss.ballTurn == turning.TPTurnA) ||
-		(tcss.serveTurn == turning.TPTurnB && tcss.ballTurn == turning.TPTurnB)
+	tcss := scc.(*TieBreakScoreCountControl)
+	isPointOnSameSide := tcss.destination == gamepoint.GPDSameSide
 
-	pointSameSide := (ballAtMySide && tcss.destination == gamepoint.GPDSameSide)
-
-	if *valueB > scc.MaxValue() || *valueA > scc.MaxValue() {
-		increment = -1
-	}
-
-	if pointSameSide && tcss.serveTurn == turning.TPTurnA {
+	if isPointOnSameSide {
 		value = valueA
-		if *valueB > scc.MaxValue() {
+		if tcss.serveTurn == turning.TPTurnB {
 			value = valueB
 		}
-	} else if pointSameSide && tcss.serveTurn == turning.TPTurnB {
-		value = valueB
-		if *valueA > scc.MaxValue() {
-			value = valueA
-		}
 	} else {
-		if tcss.destination == gamepoint.GPDOpositeSide {
+		if errorAtMySide := tcss.serveTurn == tcss.ballTurn; errorAtMySide {
 			if tcss.serveTurn == turning.TPTurnA {
 				value = valueB
-				if *valueA > scc.MaxValue() {
-					value = valueA
-				}
-			} else {
+			} else if tcss.serveTurn == turning.TPTurnB {
 				value = valueA
-				if *valueB > scc.MaxValue() {
-					value = valueB
-				}
 			}
 		} else {
 			if tcss.serveTurn == turning.TPTurnA {
-				value = valueA
-				if *valueB > scc.MaxValue() {
-					value = valueB
-				}
-			} else {
 				value = valueB
-				if *valueA > scc.MaxValue() {
+				if tcss.ballTurn == turning.TPTurnA {
 					value = valueA
+				}
+			} else if tcss.serveTurn == turning.TPTurnB {
+				value = valueA
+				if tcss.ballTurn == turning.TPTurnB {
+					value = valueB
 				}
 			}
 		}
 	}
-	*value += increment
+
+	*value += 1
 }
 
 func isTieBreakFinished(maxValue int, hasToConfirm bool, valueA, valueB int) bool {
