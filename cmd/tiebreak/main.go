@@ -117,11 +117,12 @@ func simulateTieBreak(challenge player.Challenging, g game.GameManager, defiantS
 }
 
 func main() {
+	defiantSide := turning.TPTurnA
 	pointsToWin := rand.Intn(10) + 1
 	hasToConfirm := false
-	scc := tiebreak.NewTieBreakScoreCountControl(pointsToWin, hasToConfirm)
 	challenge := cmd.CreateChallenge()
-	defiantSide := turning.TPTurnA
-	game := game.NewTieBreak(scc, challenge, defiantSide)
+
+	scc := tiebreak.NewTieBreakScoreCountControl(pointsToWin, hasToConfirm)
+	game := game.New(game.GTTieBreak, scc, challenge, defiantSide)
 	simulateTieBreak(challenge, game, defiantSide, hasToConfirm)
 }

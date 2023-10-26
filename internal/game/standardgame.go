@@ -22,7 +22,7 @@ type StandardGame struct {
 	gameFinishEvent  []OnFinishedGame
 }
 
-func NewGame(scc scoring.ScoringCountControl, challenge player.Challenging, startSide turning.TurnPosition) *StandardGame {
+func newGame(scc scoring.ScoringCountControl, challenge player.Challenging, startSide turning.TurnPosition) *StandardGame {
 	score := gamescore.New(scc)
 	ballSide := turning.New(startSide)
 	serveSide := turning.New(startSide)

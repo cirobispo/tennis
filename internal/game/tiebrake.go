@@ -18,9 +18,9 @@ type TieBreak struct {
 	defiantServingTurnEvent []OnDefiantServingTurn
 }
 
-func NewTieBreak(scc scoring.ScoringCountControl, challenge player.Challenging, startSide turning.TurnPosition) *TieBreak {
+func newTieBreak(scc scoring.ScoringCountControl, challenge player.Challenging, startSide turning.TurnPosition) *TieBreak {
 	game := &TieBreak{
-		StandardGame: NewGame(scc, challenge, startSide),
+		StandardGame: newGame(scc, challenge, startSide),
 		defiantTurn:  turning.New(startSide),
 	}
 

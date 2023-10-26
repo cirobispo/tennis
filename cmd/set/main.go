@@ -1,7 +1,6 @@
 package main
 
 import (
-	"cbtennis/cmd"
 	"cbtennis/internal/game"
 	"cbtennis/internal/player"
 	"cbtennis/internal/scoring"
@@ -9,7 +8,6 @@ import (
 	"cbtennis/internal/set"
 	"cbtennis/internal/turning"
 	"fmt"
-	"math/rand"
 )
 
 func createChallenge() player.Challenging {
@@ -89,11 +87,11 @@ func simulaSet(set *set.Set) {
 		game := set.NewGame()
 
 		var points []gamepoint.GamePointing
-		if r := rand.Intn(2); r == 0 {
-			points = cmd.Score_Gamex10()
-		} else {
-			points = cmd.Score_30xGame()
-		}
+		// if r := rand.Intn(2); r == 0 {
+		// 	points = cmd.Score_Gamex10()
+		// } else {
+		// 	points = cmd.Score_30xGame()
+		// }
 
 		simulateGame(game, points)
 		set.AddGame(game)
