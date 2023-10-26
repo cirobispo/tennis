@@ -22,7 +22,7 @@ type StandardGame struct {
 	gameFinishEvent  []OnFinishedGame
 }
 
-func NewSingleStandardGame(scc scoring.ScoringCountControl, challenge player.Challenging, startSide turning.TurnPosition) *StandardGame {
+func NewGame(scc scoring.ScoringCountControl, challenge player.Challenging, startSide turning.TurnPosition) *StandardGame {
 	score := gamescore.New(scc)
 	ballSide := turning.New(startSide)
 	serveSide := turning.New(startSide)
@@ -69,15 +69,12 @@ func (g *StandardGame) isThereDoubleFault() bool {
 	for i := size - 1; i >= 0; i-- {
 		if item := g.points[i]; item.UpdateScore() == gamepoint.GPUCondicional {
 			sum++
-			if sum == 2 {
-				break
-			}
 		} else if item.GetType() != gamepoint.GPTServeLet {
 			break
 		}
 	}
 
-	return sum == 2
+	return sum > 0 && sum%2 == 0
 }
 
 func (g *StandardGame) updateGSCCData(point gamepoint.GamePointing) *gamescore.GameScoreCountControl {

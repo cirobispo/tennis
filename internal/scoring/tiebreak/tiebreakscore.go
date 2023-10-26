@@ -27,31 +27,24 @@ func NewTieBreakScoreCountControl(maxValue int, hasToConfirm bool) scoring.Scori
 
 func updateTieBreakScore(scc scoring.ScoringCountControl, valueA, valueB *int) {
 	var value *int
-
 	tcss := scc.(*TieBreakScoreCountControl)
-	isPointOnSameSide := tcss.destination == gamepoint.GPDSameSide
 
-	if isPointOnSameSide {
+	if tcss.destination == gamepoint.GPDSameSide {
 		value = valueA
 		if tcss.serveTurn == turning.TPTurnB {
 			value = valueB
 		}
 	} else {
-		if errorAtMySide := tcss.serveTurn == tcss.ballTurn; errorAtMySide {
+		if tcss.ballCurrentTurn == tcss.ballStartTurn {
 			if tcss.serveTurn == turning.TPTurnA {
 				value = valueB
 			} else if tcss.serveTurn == turning.TPTurnB {
 				value = valueA
 			}
 		} else {
-			if tcss.serveTurn == turning.TPTurnA {
-				value = valueB
-				if tcss.ballTurn == turning.TPTurnA {
-					value = valueA
-				}
-			} else if tcss.serveTurn == turning.TPTurnB {
+			if tcss.ballCurrentTurn != tcss.serveTurn {
 				value = valueA
-				if tcss.ballTurn == turning.TPTurnB {
+				if tcss.serveTurn == turning.TPTurnB {
 					value = valueB
 				}
 			}

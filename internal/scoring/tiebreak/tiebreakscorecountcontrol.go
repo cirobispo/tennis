@@ -9,9 +9,10 @@ import (
 type TieBreakScoreCountControl struct {
 	*scoring.ScoreCountControl
 
-	ballTurn    turning.TurnPosition
-	serveTurn   turning.TurnPosition
-	destination gamepoint.GamePointDestination
+	ballStartTurn   turning.TurnPosition
+	ballCurrentTurn turning.TurnPosition
+	serveTurn       turning.TurnPosition
+	destination     gamepoint.GamePointDestination
 }
 
 func newTieBreakScoreCountControl(maxValue int, confirm bool, update scoring.UpdatingScoreHandler, done scoring.ScoreIsDoneHandler) scoring.ScoringCountControl {
@@ -19,8 +20,12 @@ func newTieBreakScoreCountControl(maxValue int, confirm bool, update scoring.Upd
 	return &TieBreakScoreCountControl{ScoreCountControl: scc}
 }
 
-func (t *TieBreakScoreCountControl) SetBallTurn(turn turning.TurnPosition) {
-	t.ballTurn = turn
+func (t *TieBreakScoreCountControl) SetBallStartTurn(turn turning.TurnPosition) {
+	t.ballStartTurn = turn
+}
+
+func (t *TieBreakScoreCountControl) SetBallCurrentTurn(turn turning.TurnPosition) {
+	t.ballCurrentTurn = turn
 }
 
 func (t *TieBreakScoreCountControl) SetServeTurn(turn turning.TurnPosition) {

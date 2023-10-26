@@ -20,7 +20,7 @@ type TieBreak struct {
 
 func NewTieBreak(scc scoring.ScoringCountControl, challenge player.Challenging, startSide turning.TurnPosition) *TieBreak {
 	game := &TieBreak{
-		StandardGame: NewSingleStandardGame(scc, challenge, startSide),
+		StandardGame: NewGame(scc, challenge, startSide),
 		defiantTurn:  turning.New(startSide),
 	}
 
@@ -39,7 +39,8 @@ func (t *TieBreak) StartGame() {
 
 func (t *TieBreak) updateTSCCData(point gamepoint.GamePointing) *tiebreak.TieBreakScoreCountControl {
 	tscc := t.score.GetScoreCountControl().(*tiebreak.TieBreakScoreCountControl)
-	tscc.SetBallTurn(t.ballSide.CurrentTurn())
+	tscc.SetBallStartTurn(t.ballSide.BeginningTurn())
+	tscc.SetBallCurrentTurn(t.ballSide.CurrentTurn())
 	tscc.SetDestination(point.PointDestination())
 	tscc.SetServeTurn(t.defiantTurn.CurrentTurn())
 

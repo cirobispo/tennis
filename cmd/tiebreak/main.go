@@ -8,6 +8,7 @@ import (
 	"cbtennis/internal/scoring/tiebreak"
 	"cbtennis/internal/turning"
 	"fmt"
+	"math/rand"
 )
 
 type SDWrapper interface {
@@ -64,7 +65,7 @@ func (s TextSDWrapper) WrapChallenger() (A string, B string) {
 	return A, B
 }
 
-func simulateTieBreak(challenge player.Challenging, g game.GameManager, defiantSide turning.TurnPosition) {
+func simulateTieBreak(challenge player.Challenging, g game.GameManager, defiantSide turning.TurnPosition, hasToConfirm bool) {
 	tiebreak := g.(*game.TieBreak)
 
 	exit := false
@@ -94,9 +95,17 @@ func simulateTieBreak(challenge player.Challenging, g game.GameManager, defiantS
 		fmt.Printf("%dx%d\n", valueA, valueB)
 	})
 
-	tiebreak.StartGame()
-	points := cmd.TieBreak(defiantSide, 7, 1)
+	maxValue := tiebreak.GetScore().GetScoreCountControl().MaxValue()
+	minValue := rand.Intn(maxValue) + 1
+	if minValue == maxValue {
+		minValue--
+	}
+	points := cmd.TieBreak(defiantSide, maxValue, 1, hasToConfirm)
+	if rand.Intn(2) == 1 {
+		points = cmd.TieBreak(defiantSide, maxValue, minValue, hasToConfirm)
+	}
 
+	tiebreak.StartGame()
 	for _, p := range points {
 		tiebreak.AddPointing(p)
 		if exit {
@@ -108,9 +117,11 @@ func simulateTieBreak(challenge player.Challenging, g game.GameManager, defiantS
 }
 
 func main() {
-	scc := tiebreak.NewTieBreakScoreCountControl(7, false)
+	pointsToWin := rand.Intn(10) + 1
+	hasToConfirm := false
+	scc := tiebreak.NewTieBreakScoreCountControl(pointsToWin, hasToConfirm)
 	challenge := cmd.CreateChallenge()
 	defiantSide := turning.TPTurnA
 	game := game.NewTieBreak(scc, challenge, defiantSide)
-	simulateTieBreak(challenge, game, defiantSide)
+	simulateTieBreak(challenge, game, defiantSide, hasToConfirm)
 }

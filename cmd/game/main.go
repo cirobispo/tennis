@@ -44,6 +44,6 @@ func simulateGame(game game.GameManager, points []gamepoint.GamePointing) {
 func main() {
 	scc := gamescore.NewGameScoreCountControl(4, true)
 	clgr := cmd.CreateChallenge()
-	game := game.NewSingleStandardGame(scc, clgr, turning.TPTurnB)
+	game := game.NewGame(scc, clgr, turning.TPTurnB)
 	simulateGame(game, cmd.Score_Gamex10())
 }
