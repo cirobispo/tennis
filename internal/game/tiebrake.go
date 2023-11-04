@@ -42,7 +42,7 @@ func (t *TieBreak) updateTSCCData(point gamepoint.GamePointing) *tiebreak.TieBre
 	tscc.SetBallStartTurn(t.ballSide.BeginningTurn())
 	tscc.SetBallCurrentTurn(t.ballSide.CurrentTurn())
 	tscc.SetDestination(point.PointDestination())
-	tscc.SetServeTurn(t.defiantTurn.CurrentTurn())
+	tscc.SetDefiantSide(t.defiantTurn.CurrentTurn())
 
 	return tscc
 }
@@ -57,7 +57,6 @@ func (t *TieBreak) AddPointing(point gamepoint.GamePointing) {
 		if isDone := tscc.IsDone(t.score.GetStatus()); !isDone {
 			t.servingSide.DoTurn()
 			t.ballSide.SetBeginningTurn(t.servingSide.CurrentTurn(), true)
-			t.servingSide.SetBeginningTurn(t.servingSide.CurrentTurn(), true)
 			t.turnshiftCounting++
 			if t.turnshiftCounting == 2 {
 				t.defiantTurn.DoTurn()

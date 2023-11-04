@@ -6,19 +6,15 @@ import (
 	"math"
 )
 
-func TieBreak(defiantStarting turning.TurnPosition, valueA, valueB int, hasToConfirm bool) []gamepoint.GamePointing {
-	max := func(a, b int) int {
-		if b > a {
-			return b
-		}
-		return a
-	}(valueA, valueB)
-
+func TieBreak(defiantStarting turning.TurnPosition, valueA, valueB int) []gamepoint.GamePointing {
 	servingCount := 1
 	defiantServing := turning.New(defiantStarting)
+	ballSide := turning.New(defiantStarting)
 
 	servingSide := turning.New(turning.TPTurnA)
 	servingSide.AddTurnChangeEvent(func(turn turning.TurnPosition) {
+		ballSide.SetBeginningTurn(defiantServing.CurrentTurn(), true)
+
 		servingCount++
 		if servingCount == 2 {
 			defiantServing.DoTurn()
@@ -27,7 +23,7 @@ func TieBreak(defiantStarting turning.TurnPosition, valueA, valueB int, hasToCon
 	})
 
 	incA, incB := 0, 0
-	points := make([]gamepoint.GamePointing, 0, max*2)
+	points := make([]gamepoint.GamePointing, 0, (valueA+valueB)*2)
 	pointsToEquivalence := valueA - valueB
 	for i := 0; i < int(math.Abs(float64(pointsToEquivalence))); i++ {
 		if valueA > valueB {
@@ -35,6 +31,8 @@ func TieBreak(defiantStarting turning.TurnPosition, valueA, valueB int, hasToCon
 				points = append(points, gamepoint.NewGamePointAce())
 			} else {
 				points = append(points, ServingDoubleFalt()...)
+				// whoLoses := turning.TPTurnB
+				// points = append(points, ServingInPointOutBy(ballSide, whoLoses, 1)...)
 			}
 			incA++
 		} else {
@@ -42,12 +40,14 @@ func TieBreak(defiantStarting turning.TurnPosition, valueA, valueB int, hasToCon
 				points = append(points, gamepoint.NewGamePointAce())
 			} else {
 				points = append(points, ServingDoubleFalt()...)
+				// whoLoses := turning.TPTurnA
+				// points = append(points, ServingInPointOutBy(whoLoses, 1)...)
 			}
 			incB++
 		}
 		servingSide.DoTurn()
 	}
-	/**/
+	/**
 	for i := int(math.Abs(float64(pointsToEquivalence))); i < valueA+valueB; i++ {
 		if pointsToEquivalence > 0 {
 			if (incA - int(math.Abs(float64(pointsToEquivalence)))) >= incB {

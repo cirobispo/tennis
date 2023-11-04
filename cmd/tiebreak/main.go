@@ -96,14 +96,16 @@ func simulateTieBreak(challenge player.Challenging, g game.GameManager, defiantS
 	})
 
 	maxValue := tiebreak.GetScore().GetScoreCountControl().MaxValue()
-	minValue := rand.Intn(maxValue) + 1
+	minValue := rand.Intn(maxValue-4) + 1
 	if minValue == maxValue {
 		minValue--
 	}
-	points := cmd.TieBreak(defiantSide, maxValue, 1, hasToConfirm)
-	if rand.Intn(2) == 1 {
-		points = cmd.TieBreak(defiantSide, maxValue, minValue, hasToConfirm)
+
+	if rand.Intn(2) != 1 { // inverto os valores
+		maxValue, minValue = minValue, maxValue
 	}
+	fmt.Println("Alcançar ", maxValue, " x ", minValue)
+	points := cmd.TieBreak(defiantSide, maxValue, minValue)
 
 	tiebreak.StartGame()
 	for _, p := range points {
@@ -118,7 +120,7 @@ func simulateTieBreak(challenge player.Challenging, g game.GameManager, defiantS
 
 func main() {
 	defiantSide := turning.TPTurnA
-	pointsToWin := rand.Intn(10) + 1
+	pointsToWin := 5 //rand.Intn(10) + 1
 	hasToConfirm := false
 	challenge := cmd.CreateChallenge()
 

@@ -29,25 +29,24 @@ func updateTieBreakScore(scc scoring.ScoringCountControl, valueA, valueB *int) {
 	var value *int
 	tcss := scc.(*TieBreakScoreCountControl)
 
+	actualA := valueA
+	actualB := valueB
+	dinamicDefiant := turning.TPTurnB
+	if tcss.defiantSide == turning.TPTurnB {
+		actualA = valueB
+		actualB = valueA
+		dinamicDefiant = turning.TPTurnA
+	}
+
 	if tcss.destination == gamepoint.GPDSameSide {
-		value = valueA
-		if tcss.serveTurn == turning.TPTurnB {
-			value = valueB
+		value = actualA
+		if tcss.defiantSide == dinamicDefiant {
+			value = actualB
 		}
 	} else {
+		value = actualA
 		if tcss.ballCurrentTurn == tcss.ballStartTurn {
-			if tcss.serveTurn == turning.TPTurnA {
-				value = valueB
-			} else if tcss.serveTurn == turning.TPTurnB {
-				value = valueA
-			}
-		} else {
-			if tcss.ballCurrentTurn != tcss.serveTurn {
-				value = valueA
-				if tcss.serveTurn == turning.TPTurnB {
-					value = valueB
-				}
-			}
+			value = actualB
 		}
 	}
 
@@ -66,3 +65,25 @@ func isTieBreakFinished(maxValue int, hasToConfirm bool, valueA, valueB int) boo
 
 	return simpleWin || confirmWin
 }
+
+// if tcss.destination == gamepoint.GPDSameSide {
+// 	value = valueA
+// 	if tcss.serveTurn == turning.TPTurnB {
+// 		value = valueB
+// 	}
+// } else {
+// 	if tcss.ballCurrentTurn == tcss.ballStartTurn {
+// 		if tcss.serveTurn == turning.TPTurnA {
+// 			value = valueB
+// 		} else if tcss.serveTurn == turning.TPTurnB {
+// 			value = valueA
+// 		}
+// 	} else {
+// 		if tcss.ballCurrentTurn != tcss.serveTurn {
+// 			value = valueA
+// 			if tcss.serveTurn == turning.TPTurnB {
+// 				value = valueB
+// 			}
+// 		}
+// 	}
+// }

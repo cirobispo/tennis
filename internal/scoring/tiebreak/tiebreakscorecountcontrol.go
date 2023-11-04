@@ -11,7 +11,7 @@ type TieBreakScoreCountControl struct {
 
 	ballStartTurn   turning.TurnPosition
 	ballCurrentTurn turning.TurnPosition
-	serveTurn       turning.TurnPosition
+	defiantSide     turning.TurnPosition
 	destination     gamepoint.GamePointDestination
 }
 
@@ -28,8 +28,8 @@ func (t *TieBreakScoreCountControl) SetBallCurrentTurn(turn turning.TurnPosition
 	t.ballCurrentTurn = turn
 }
 
-func (t *TieBreakScoreCountControl) SetServeTurn(turn turning.TurnPosition) {
-	t.serveTurn = turn
+func (t *TieBreakScoreCountControl) SetDefiantSide(turn turning.TurnPosition) {
+	t.defiantSide = turn
 }
 
 func (t *TieBreakScoreCountControl) SetDestination(destination gamepoint.GamePointDestination) {

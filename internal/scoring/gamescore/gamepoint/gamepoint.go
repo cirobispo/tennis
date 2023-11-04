@@ -165,32 +165,3 @@ func NewGamePointNet(turn turning.TurnPosition) GamePoint {
 		pointDestination: destination,
 	}
 }
-
-// func New(pointType GamePointType) GamePointing {
-// 	switch pointType {
-// 	case GPTAce:
-// 		return newGamePointAce()
-// 	case GPTServeLet:
-// 		return newGamePointServeLet()
-// 	case GPTServeNet:
-// 		return newGamePointServeNet()
-// 	case GPTServeIn:
-// 		return newGamePointServeIn()
-// 	case GPTServeOut:
-// 		return newGamePointServeOut()
-// 	case GPTReturnNet:
-// 		return newGamePointReturnNet()
-// 	case GPTReturnIn:
-// 		return newGamePointReturnIn()
-// 	case GPTReturnOut:
-// 		return newGamePointReturnOut()
-// 	case GPTNet:
-// 		return newGamePointNet(turn)
-// 	case GPTIn:
-// 		return newGamePointIn()
-// 	case GPTOut:
-// 		return newGamePointOut(turn)
-// 	default:
-// 		return nil
-// 	}
-// }

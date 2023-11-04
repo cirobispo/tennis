@@ -97,12 +97,44 @@ func ServingInReturningNet() []gamepoint.GamePointing {
 	return points
 }
 
-func rallyWinningBy(hits int, tp turning.TurnPosition) []gamepoint.GamePointing {
+func ServingInPointOutBy(turn *turning.Turn, looserSide turning.TurnPosition, hitCount int) []gamepoint.GamePointing {
+	points := make([]gamepoint.GamePointing, 0, hitCount*2+2)
+
+	//serveIn
+	points = append(points, gamepoint.NewGamePointServeIn())
+	//returnIn
+	points = append(points, gamepoint.NewGamePointReturnIn())
+	//Hits
+	points = append(points, doubleRallyPointOutBy(turn, looserSide, hitCount)...)
+
+	return points
+}
+
+func doubleRallyPointOutBy(turn *turning.Turn, looserSide turning.TurnPosition, hitCount int) []gamepoint.GamePointing {
 	points := make([]gamepoint.GamePointing, 0, 4)
 
-	turn := turning.New(tp)
+	for i := 0; i < hitCount-1; i++ {
+		points = append(points, gamepoint.NewGamePointIn())
+		points = append(points, gamepoint.NewGamePointIn())
+	}
 
-	for i := 0; i < hits; i++ {
+	points = append(points, gamepoint.NewGamePointIn())
+	if looserSide == turning.TPTurnA {
+		points = append(points, gamepoint.NewGamePointWinner())
+	} else {
+		points = append(points, gamepoint.NewGamePointOut(looserSide))
+	}
+	turn.DoTurn()
+
+	return points
+}
+
+func rallyWinningBy(winnerSide turning.TurnPosition, hitCount int) []gamepoint.GamePointing {
+	points := make([]gamepoint.GamePointing, 0, 4)
+
+	turn := turning.New(winnerSide)
+
+	for i := 0; i < hitCount; i++ {
 		points = append(points, Devolution(pointIn, turn.CurrentTurn()))
 		turn.DoTurn()
 	}
@@ -115,8 +147,8 @@ func rallyWinningBy(hits int, tp turning.TurnPosition) []gamepoint.GamePointing 
 	beginAligned := len(points)%2 == 0 && turn.CurrentTurn() == turning.TPTurnA
 	oppositeAligned := len(points)%2 == 1 && turn.CurrentTurn() == turning.TPTurnB
 
-	if beginAligned || (oppositeAligned && tp == turning.TPTurnB) {
-		points = append(points, Devolution(pointWinner, tp))
+	if beginAligned || (oppositeAligned && winnerSide == turning.TPTurnB) {
+		points = append(points, Devolution(pointWinner, winnerSide))
 	} else {
 		var dev SimpleDevolution = pointNet
 		if rand.Intn(2) == 1 {
@@ -129,9 +161,9 @@ func rallyWinningBy(hits int, tp turning.TurnPosition) []gamepoint.GamePointing 
 }
 
 func RallyWinningByServing(hits int) []gamepoint.GamePointing {
-	return rallyWinningBy(hits, turning.TPTurnA)
+	return rallyWinningBy(turning.TPTurnA, hits)
 }
 
 func RallyWinningByReceiving(hits int) []gamepoint.GamePointing {
-	return rallyWinningBy(hits, turning.TPTurnB)
+	return rallyWinningBy(turning.TPTurnB, hits)
 }
