@@ -21,8 +21,8 @@ func New(scc scoring.ScoringCountControl) scoring.Scoring {
 	return result
 }
 
-func NewGameScoreCountControl(maxValue int, hasToConfirm bool) scoring.ScoringCountControl {
-	return newGameScoreCountControl(maxValue, hasToConfirm, updateGameScore, isGameFinished)
+func NewScoreControl(maxValue int, hasToConfirm bool) scoring.ScoringCountControl {
+	return newScoreControl(maxValue, hasToConfirm, updateGameScore, isGameFinished)
 }
 
 func updateGameScore(scc scoring.ScoringCountControl, valueA, valueB *int) {

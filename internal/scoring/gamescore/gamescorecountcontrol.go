@@ -12,7 +12,7 @@ type GameScoreCountControl struct {
 	destination gamepoint.GamePointDestination
 }
 
-func newGameScoreCountControl(maxValue int, confirm bool, update scoring.UpdatingScoreHandler, done scoring.ScoreIsDoneHandler) scoring.ScoringCountControl {
+func newScoreControl(maxValue int, confirm bool, update scoring.UpdatingScoreHandler, done scoring.ScoreIsDoneHandler) scoring.ScoringCountControl {
 	scc := scoring.NewScoreCountControl(maxValue, confirm, update, done)
 	return &GameScoreCountControl{ScoreCountControl: scc}
 }

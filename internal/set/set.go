@@ -63,7 +63,7 @@ func (s *Set) NewGame() game.GameManager {
 		s.sideServing.DoTurn()
 		sscc := s.score.GetScoreCountControl()
 		if !sscc.IsTie() || !sscc.HasToConfirm() {
-			gscc := gamescore.NewGameScoreCountControl(4, s.confirmGame)
+			gscc := gamescore.NewScoreControl(4, s.confirmGame)
 			standardgame := game.New(game.GTGame, gscc, nil, s.sideServing.CurrentTurn())
 
 			s.executeStartingNewGameEvent()

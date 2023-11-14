@@ -21,8 +21,8 @@ func New(scc scoring.ScoringCountControl) scoring.Scoring {
 	return result
 }
 
-func NewTieBreakScoreCountControl(maxValue int, hasToConfirm bool) scoring.ScoringCountControl {
-	return newTieBreakScoreCountControl(maxValue, hasToConfirm, updateTieBreakScore, isTieBreakFinished)
+func NewScoreControl(maxValue int, hasToConfirm bool) scoring.ScoringCountControl {
+	return newScoreControl(maxValue, hasToConfirm, updateTieBreakScore, isTieBreakFinished)
 }
 
 func updateTieBreakScore(scc scoring.ScoringCountControl, valueA, valueB *int) {
@@ -65,25 +65,3 @@ func isTieBreakFinished(maxValue int, hasToConfirm bool, valueA, valueB int) boo
 
 	return simpleWin || confirmWin
 }
-
-// if tcss.destination == gamepoint.GPDSameSide {
-// 	value = valueA
-// 	if tcss.serveTurn == turning.TPTurnB {
-// 		value = valueB
-// 	}
-// } else {
-// 	if tcss.ballCurrentTurn == tcss.ballStartTurn {
-// 		if tcss.serveTurn == turning.TPTurnA {
-// 			value = valueB
-// 		} else if tcss.serveTurn == turning.TPTurnB {
-// 			value = valueA
-// 		}
-// 	} else {
-// 		if tcss.ballCurrentTurn != tcss.serveTurn {
-// 			value = valueA
-// 			if tcss.serveTurn == turning.TPTurnB {
-// 				value = valueB
-// 			}
-// 		}
-// 	}
-// }

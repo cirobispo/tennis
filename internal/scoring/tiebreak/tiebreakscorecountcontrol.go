@@ -15,7 +15,7 @@ type TieBreakScoreCountControl struct {
 	destination     gamepoint.GamePointDestination
 }
 
-func newTieBreakScoreCountControl(maxValue int, confirm bool, update scoring.UpdatingScoreHandler, done scoring.ScoreIsDoneHandler) scoring.ScoringCountControl {
+func newScoreControl(maxValue int, confirm bool, update scoring.UpdatingScoreHandler, done scoring.ScoreIsDoneHandler) scoring.ScoringCountControl {
 	scc := scoring.NewScoreCountControl(maxValue, confirm, update, done)
 	return &TieBreakScoreCountControl{ScoreCountControl: scc}
 }
