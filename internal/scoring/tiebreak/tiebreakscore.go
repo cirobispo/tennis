@@ -31,21 +31,19 @@ func updateTieBreakScore(scc scoring.ScoringCountControl, valueA, valueB *int) {
 
 	actualA := valueA
 	actualB := valueB
-	dinamicDefiant := turning.TPTurnB
 	if tcss.defiantSide == turning.TPTurnB {
 		actualA = valueB
 		actualB = valueA
-		dinamicDefiant = turning.TPTurnA
 	}
 
 	if tcss.destination == gamepoint.GPDSameSide {
 		value = actualA
-		if tcss.defiantSide == dinamicDefiant {
+		if tcss.defiantSide == turning.TPTurnB {
 			value = actualB
 		}
 	} else {
 		value = actualA
-		if tcss.ballCurrentTurn == tcss.ballStartTurn {
+		if tcss.ballCurrentTurn == turning.TPTurnA {
 			value = actualB
 		}
 	}

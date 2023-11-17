@@ -97,34 +97,34 @@ func ServingInReturningNet() []gamepoint.GamePointing {
 	return points
 }
 
-func ServingInPointOutBy(turn *turning.Turn, looserSide turning.TurnPosition, hitCount int) []gamepoint.GamePointing {
-	points := make([]gamepoint.GamePointing, 0, hitCount*2+2)
+func ServingInPointOutBy(startingTurn, looserSide turning.TurnPosition, hitCount int) []gamepoint.GamePointing {
+	points := make([]gamepoint.GamePointing, 0, hitCount+2)
 
 	//serveIn
 	points = append(points, gamepoint.NewGamePointServeIn())
 	//returnIn
 	points = append(points, gamepoint.NewGamePointReturnIn())
 	//Hits
-	points = append(points, doubleRallyPointOutBy(turn, looserSide, hitCount)...)
+	points = append(points, doubleRallyPointOutBy(startingTurn, looserSide, hitCount)...)
 
 	return points
 }
 
-func doubleRallyPointOutBy(turn *turning.Turn, looserSide turning.TurnPosition, hitCount int) []gamepoint.GamePointing {
-	points := make([]gamepoint.GamePointing, 0, 4)
+func doubleRallyPointOutBy(startingTurn, looserSide turning.TurnPosition, hitCount int) []gamepoint.GamePointing {
+	points := make([]gamepoint.GamePointing, 0, hitCount)
+
+	turn := turning.New(startingTurn)
 
 	for i := 0; i < hitCount-1; i++ {
 		points = append(points, gamepoint.NewGamePointIn())
-		points = append(points, gamepoint.NewGamePointIn())
+		turn.DoTurn()
 	}
 
-	points = append(points, gamepoint.NewGamePointIn())
-	if looserSide == turning.TPTurnA {
-		points = append(points, gamepoint.NewGamePointWinner())
-	} else {
+	if turn.CurrentTurn() == looserSide {
 		points = append(points, gamepoint.NewGamePointOut(looserSide))
+	} else {
+		points = append(points, gamepoint.NewGamePointWinner())
 	}
-	turn.DoTurn()
 
 	return points
 }

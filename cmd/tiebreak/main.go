@@ -96,13 +96,14 @@ func simulateTieBreak(challenge player.Challenging, g game.GameManager, defiantS
 	})
 
 	maxValue := tiebreak.GetScore().GetScoreCountControl().MaxValue()
-	minValue := rand.Intn(maxValue-4) + 1
+	minValue := rand.Intn(maxValue-(maxValue-1)) + 1
 	if minValue == maxValue {
 		minValue--
 	}
 
 	if rand.Intn(2) != 1 { // inverto os valores
 		maxValue, minValue = minValue, maxValue
+		//		defiantSide = turning.TPTurnB
 	}
 	fmt.Println("Alcançar ", maxValue, " x ", minValue)
 	points := cmd.TieBreak(defiantSide, maxValue, minValue)
@@ -120,11 +121,12 @@ func simulateTieBreak(challenge player.Challenging, g game.GameManager, defiantS
 
 func main() {
 	defiantSide := turning.TPTurnA
-	pointsToWin := 5 //rand.Intn(10) + 1
+	pointsToWin := rand.Intn(10) + 1
+	pointsToWin = 4
 	hasToConfirm := false
 	challenge := cmd.CreateChallenge()
 
-	scc := tiebreak.NewTieBreakScoreCountControl(pointsToWin, hasToConfirm)
+	scc := tiebreak.NewScoreControl(pointsToWin, hasToConfirm)
 	game := game.New(game.GTTieBreak, scc, challenge, defiantSide)
 	simulateTieBreak(challenge, game, defiantSide, hasToConfirm)
 }

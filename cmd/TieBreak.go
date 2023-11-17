@@ -11,6 +11,14 @@ func TieBreak(defiantStarting turning.TurnPosition, valueA, valueB int) []gamepo
 	defiantServing := turning.New(defiantStarting)
 	ballSide := turning.New(defiantStarting)
 
+	incA, incB := 0, 0
+	pInc := &incB
+	whoLoses := turning.TPTurnA
+	if valueA > valueB {
+		whoLoses = turning.TPTurnB
+		pInc = &incA
+	}
+
 	servingSide := turning.New(turning.TPTurnA)
 	servingSide.AddTurnChangeEvent(func(turn turning.TurnPosition) {
 		ballSide.SetBeginningTurn(defiantServing.CurrentTurn(), true)
@@ -22,29 +30,21 @@ func TieBreak(defiantStarting turning.TurnPosition, valueA, valueB int) []gamepo
 		}
 	})
 
-	incA, incB := 0, 0
+	defiantServing.AddTurnChangeEvent(func(turn turning.TurnPosition) {
+		if whoLoses == turning.TPTurnA {
+			whoLoses = turning.TPTurnB
+		} else {
+			whoLoses = turning.TPTurnA
+		}
+	})
+
 	points := make([]gamepoint.GamePointing, 0, (valueA+valueB)*2)
 	pointsToEquivalence := valueA - valueB
+
 	for i := 0; i < int(math.Abs(float64(pointsToEquivalence))); i++ {
-		if valueA > valueB {
-			if defiantServing.CurrentTurn() == turning.TPTurnA {
-				points = append(points, gamepoint.NewGamePointAce())
-			} else {
-				points = append(points, ServingDoubleFalt()...)
-				// whoLoses := turning.TPTurnB
-				// points = append(points, ServingInPointOutBy(ballSide, whoLoses, 1)...)
-			}
-			incA++
-		} else {
-			if defiantServing.CurrentTurn() == turning.TPTurnB {
-				points = append(points, gamepoint.NewGamePointAce())
-			} else {
-				points = append(points, ServingDoubleFalt()...)
-				// whoLoses := turning.TPTurnA
-				// points = append(points, ServingInPointOutBy(whoLoses, 1)...)
-			}
-			incB++
-		}
+		points = append(points, ServingInPointOutBy(defiantStarting, whoLoses, 2)...)
+		*pInc++
+
 		servingSide.DoTurn()
 	}
 	/**
@@ -87,3 +87,28 @@ func TieBreak(defiantStarting turning.TurnPosition, valueA, valueB int) []gamepo
 	/**/
 	return points
 }
+
+/**
+	for i := 0; i < int(math.Abs(float64(pointsToEquivalence))); i++ {
+		if valueA > valueB {
+			if defiantServing.CurrentTurn() == turning.TPTurnA {
+				points = append(points, gamepoint.NewGamePointAce())
+			} else {
+				// points = append(points, ServingDoubleFalt()...)
+				whoLoses := turning.TPTurnB
+				points = append(points, ServingInPointOutBy(defiantServing.CurrentTurn(), whoLoses, 2)...)
+			}
+			incA++
+		} else {
+			if defiantServing.CurrentTurn() == turning.TPTurnB {
+				points = append(points, gamepoint.NewGamePointAce())
+			} else {
+				// points = append(points, ServingDoubleFalt()...)
+				whoLoses := turning.TPTurnA
+				points = append(points, ServingInPointOutBy(defiantServing.CurrentTurn(), whoLoses, 2)...)
+			}
+			incB++
+		}
+		servingSide.DoTurn()
+	}
+/**/
