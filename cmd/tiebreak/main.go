@@ -101,10 +101,10 @@ func simulateTieBreak(challenge player.Challenging, g game.GameManager, defiantS
 		minValue--
 	}
 
-	if rand.Intn(2) != 1 { // inverto os valores
+	// if rand.Intn(2) != 1 { // inverto os valores
 		maxValue, minValue = minValue, maxValue
 		//		defiantSide = turning.TPTurnB
-	}
+	// }
 	fmt.Println("Alcançar ", maxValue, " x ", minValue)
 	points := cmd.TieBreak(defiantSide, maxValue, minValue)
 

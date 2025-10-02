@@ -97,7 +97,7 @@ func ServingInReturningNet() []gamepoint.GamePointing {
 	return points
 }
 
-func ServingInPointOutBy(startingTurn, looserSide turning.TurnPosition, hitCount int) []gamepoint.GamePointing {
+func ServingInPointOutBy(startingTurn turning.TurnPosition, sidePoint gamepoint.GamePointDestination, hitCount int) []gamepoint.GamePointing {
 	points := make([]gamepoint.GamePointing, 0, hitCount+2)
 
 	//serveIn
@@ -105,12 +105,12 @@ func ServingInPointOutBy(startingTurn, looserSide turning.TurnPosition, hitCount
 	//returnIn
 	points = append(points, gamepoint.NewGamePointReturnIn())
 	//Hits
-	points = append(points, doubleRallyPointOutBy(startingTurn, looserSide, hitCount)...)
+	points = append(points, doubleRallyPointOutBy(startingTurn, sidePoint, hitCount)...)
 
 	return points
 }
 
-func doubleRallyPointOutBy(startingTurn, looserSide turning.TurnPosition, hitCount int) []gamepoint.GamePointing {
+func doubleRallyPointOutBy(startingTurn turning.TurnPosition, sidePoint gamepoint.GamePointDestination,hitCount int) []gamepoint.GamePointing {
 	points := make([]gamepoint.GamePointing, 0, hitCount)
 
 	turn := turning.New(startingTurn)
@@ -120,10 +120,20 @@ func doubleRallyPointOutBy(startingTurn, looserSide turning.TurnPosition, hitCou
 		turn.DoTurn()
 	}
 
-	if turn.CurrentTurn() == looserSide {
-		points = append(points, gamepoint.NewGamePointOut(looserSide))
+	inverted :=turn.CurrentTurn() != startingTurn
+	
+	if sidePoint == gamepoint.GPDOpositeSide {
+		if inverted {
+			points = append(points, gamepoint.NewGamePointWinner())
+		} else {
+			points = append(points, gamepoint.NewGamePointOut(startingTurn))
+		}
 	} else {
-		points = append(points, gamepoint.NewGamePointWinner())
+		if inverted {
+			points = append(points, gamepoint.NewGamePointOut(startingTurn))
+		} else {
+			points = append(points, gamepoint.NewGamePointWinner())
+		}
 	}
 
 	return points

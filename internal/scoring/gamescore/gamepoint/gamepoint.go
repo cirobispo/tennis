@@ -13,7 +13,7 @@ type GamePointing interface {
 }
 
 const (
-	GPTFoot      GamePointType = 1
+	GPTFootFault GamePointType = 1
 	GPTAce       GamePointType = 2
 	GPTServeLet  GamePointType = 3
 	GPTServeOut  GamePointType = 4
